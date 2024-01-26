@@ -1,5 +1,9 @@
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/sinks/msvc_sink.h>
+#include "Papyrus.h"
+#include "JCApi.h"
+
+using namespace OM;
 
 void InitLogging()
 {
@@ -23,6 +27,24 @@ void InitLogging()
 	spdlog::set_pattern("[%^%L%$] %v");
 }
 
+ void InitializeMessaging() {			
+	logs::info("initializing messaging");
+
+	if (!SKSE::GetMessagingInterface()->RegisterListener([](SKSE::MessagingInterface::Message* message) {
+		if (message->type == SKSE::MessagingInterface::kPostLoad) {
+			logs::info("on post load");
+			SKSE::GetMessagingInterface()->RegisterListener(JC_PLUGIN_NAME, [](SKSE::MessagingInterface::Message* a_msg) {
+				if (a_msg && a_msg->type == jc::message_root_interface) {
+					const jc::root_interface* root = jc::root_interface::from_void(a_msg->data);
+					JC::Api::Init(root);
+				}
+			});
+		}
+	})) {
+		stl::report_and_fail("Unable to register message listener.");
+	}
+ }
+
 SKSEPluginLoad(const SKSE::LoadInterface* a_skse)
 {
 	InitLogging();
@@ -31,6 +53,10 @@ SKSEPluginLoad(const SKSE::LoadInterface* a_skse)
 	logs::info("{} v{} is loading...", plugin->GetName(), plugin->GetVersion());
 
 	SKSE::Init(a_skse);
+
+	const auto papyrus = SKSE::GetPapyrusInterface();
+	papyrus->Register(Papyrus::RegisterFunctions);
+	InitializeMessaging();
 
 	logs::info("{} loaded.", plugin->GetName());
 
