@@ -2,6 +2,14 @@
 #include "Script.h"
 
 namespace OM {
-    class OverlayData {
+    struct OverlayData {
+        std::string area;
+        int slot;
+        std::string path;
+        int color;
+        int glow;
+        bool gloss;
+        std::string bump;
+        float alpha;
     };
 }

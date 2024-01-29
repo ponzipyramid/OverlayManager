@@ -6,13 +6,18 @@ using namespace OM;
 namespace {
     constexpr std::string_view PapyrusClass = "OverlayManager";
 
-    bool UpdateOverlays(RE::StaticFunctionTag*, RE::Actor* a_actor) {
-        return OverlayManager::UpdateOverlays(a_actor);
+    void UpdateOverlaysLatent(RE::BSScript::Internal::VirtualMachine* a_vm, RE::VMStackID a_stackId) {
+        a_vm->ReturnLatentResult<bool>(a_stackId, true);
+    }
+
+    RE::BSScript::LatentStatus UpdateOverlays([[maybe_unused]] RE::BSScript::Internal::VirtualMachine* a_vm, [[maybe_unused]] RE::VMStackID a_stackId, [[maybe_unused]] RE::StaticFunctionTag* a_cl, [[maybe_unused]] RE::Actor* a_actor) {
+        std::thread t1(OverlayManager::UpdateOverlays, a_actor);
+        t1.detach();
+        return RE::BSScript::LatentStatus::kStarted;
     }
 }
 
 bool Papyrus::RegisterFunctions(RE::BSScript::IVirtualMachine* vm) {
-    vm->RegisterFunction("UpdateOverlays", PapyrusClass, UpdateOverlays);
-
+    vm->RegisterLatentFunction<bool>("UpdateOverlays", PapyrusClass, UpdateOverlays);
     return true;
 }
