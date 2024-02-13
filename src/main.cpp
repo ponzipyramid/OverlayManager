@@ -2,6 +2,7 @@
 #include <spdlog/sinks/msvc_sink.h>
 #include "Papyrus.h"
 #include "JCApi.h"
+#include "NiOverride.h"
 
 using namespace OM;
 
@@ -39,6 +40,7 @@ void InitLogging()
 					JC::Api::Init(root);
 				}
 			});
+			NiOverride::Init();
 		}
 	})) {
 		stl::report_and_fail("Unable to register message listener.");

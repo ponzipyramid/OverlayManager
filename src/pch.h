@@ -2,6 +2,7 @@
 
 #include <RE/Skyrim.h>
 #include <SKSE/SKSE.h>
+#include <windows.h>
 
 namespace WinAPI = SKSE::WinAPI;
 namespace logs = SKSE::log;
