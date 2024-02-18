@@ -25,11 +25,12 @@ set_policy("package.requires_lock", true)
 
 -- require packages
 add_requires("commonlibsse-ng", { configs = { skyrim_vr = false } })
+add_requires("magic_enum", "nlohmann_json")
 
 -- targets
 target("OverlayManager")
     -- add packages to target
-    add_packages("fmt", "spdlog", "commonlibsse-ng")
+    add_packages("fmt", "spdlog", "commonlibsse-ng", "magic_enum", "nlohmann_json")
 
     -- add commonlibsse-ng plugin
     add_rules("@commonlibsse-ng/plugin", {
@@ -56,9 +57,7 @@ target("OverlayManager")
                 end
             end
         end
-        if os.getenv("SKYRIM_MODS_PATH") then
-            copy(os.getenv("SKYRIM_MODS_PATH"), target:name())
-        elseif os.getenv("SKYRIM_PATH") then
+        if os.getenv("SKYRIM_PATH") then
             copy(os.getenv("SKYRIM_PATH"), "Data")
         end
     end)

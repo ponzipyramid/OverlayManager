@@ -3,6 +3,7 @@
 #include "Papyrus.h"
 #include "JCApi.h"
 #include "NiOverride.h"
+#include "Registry.h"
 
 using namespace OM;
 
@@ -33,14 +34,16 @@ void InitLogging()
 
 	if (!SKSE::GetMessagingInterface()->RegisterListener([](SKSE::MessagingInterface::Message* message) {
 		if (message->type == SKSE::MessagingInterface::kPostLoad) {
-			logs::info("on post load");
+			NiOverride::Init();
+			
 			SKSE::GetMessagingInterface()->RegisterListener(JC_PLUGIN_NAME, [](SKSE::MessagingInterface::Message* a_msg) {
 				if (a_msg && a_msg->type == jc::message_root_interface) {
-					const jc::root_interface* root = jc::root_interface::from_void(a_msg->data);
-					JC::Api::Init(root);
+					if (const jc::root_interface* root = jc::root_interface::from_void(a_msg->data))
+						JC::Api::Init(root);
 				}
 			});
-			NiOverride::Init();
+		} else if (message->type == SKSE::MessagingInterface::kDataLoaded) {
+			Registry::Init();
 		}
 	})) {
 		stl::report_and_fail("Unable to register message listener.");
@@ -59,6 +62,7 @@ SKSEPluginLoad(const SKSE::LoadInterface* a_skse)
 	const auto papyrus = SKSE::GetPapyrusInterface();
 	papyrus->Register(Papyrus::RegisterFunctions);
 	InitializeMessaging();
+	Registry::Read();
 
 	logs::info("{} loaded.", plugin->GetName());
 
