@@ -17,7 +17,7 @@ namespace OM {
                 if (entry.is_directory()) continue;
                 if (path.extension() != ".json") continue;
                 
-                logs::info("processing: {}", path.string());
+                logger::info("processing: {}", path.string());
 
                 std::ifstream f(entry.path());
                 json data = json::parse(f);
@@ -29,11 +29,11 @@ namespace OM {
                 std::set<std::string_view> seen;
                 for (auto& tat : tats) {
                     if (tat.IsValid()) {
-                        logs::info("skipping {}/{}: invalid data", tat.set, tat.name);
+                        logger::info("skipping {}/{}: invalid data", tat.set, tat.name);
                         continue;
                     }
                     if (seen.contains(tat.path)) {
-                        logs::info("skipping {}/{}: duplicate path", tat.set, tat.name);
+                        logger::info("skipping {}/{}: duplicate path", tat.set, tat.name);
                         continue;
                     }
 
@@ -41,7 +41,7 @@ namespace OM {
                     seen.insert(tat.path);
                 }
 
-                logs::info("Num STs found: {}", tats.size());
+                logger::info("Num STs found: {}", tats.size());
             }
 
             // TODO: ingest all OM JSONs

@@ -7,7 +7,7 @@ namespace {
         a_func = reinterpret_cast<F>(refl->tes_function_of_class(a_funcName, a_className));
 
         if (!a_func) {
-            logs::error("JCApi: couldn't obtain function {}::{}", a_className, a_funcName);
+            logger::error("JCApi: couldn't obtain function {}::{}", a_className, a_funcName);
         }
 
     }
@@ -43,7 +43,7 @@ namespace OM::JC {
 
             _initialised = true;
 
-            logs::info("finished initializing JC API");
+            logger::info("finished initializing JC API");
         }
         
         static inline bool IsInit() { return _initialised; }
@@ -76,7 +76,7 @@ namespace OM::JC {
         }
 
         static inline int32_t getInt(Handle a_obj, RE::BSFixedString a_key, int32_t a_default = 0) {
-            return Api::IsInit() ? JMap_getInt(default_domain, a_obj, a_key, a_default) : 0.0f;
+            return Api::IsInit() ? JMap_getInt(default_domain, a_obj, a_key, a_default) : 0;
         }
 
         static inline float getFlt(Handle a_obj, RE::BSFixedString a_key, float a_default = 0.f) {
