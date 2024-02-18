@@ -4,6 +4,7 @@ using json = nlohmann::json;
 
 namespace OM {
     enum OverlayArea {
+        Invalid,
         Body,
         Hands,
         Feet,
@@ -27,7 +28,16 @@ namespace OM {
     };
 
     struct Overlay {
-        std::string_view path;
+        inline bool IsValid() {
+            // TODO: implement file existence check
+            return path != "" && set != "" && name != "" && area != OverlayArea::Invalid;
+        }
+        virtual std::string_view GetPath() {
+            return ST_PATH + ""
+        } 
+
+        std::string path;
+        std::string_view root;
         std::string_view set;
         std::string_view name;
         OverlayArea area;
@@ -53,11 +63,17 @@ namespace OM {
 
     inline void from_json(const json& j, OverlayST& p) {
         j.at("name").get_to(p.name);
-        j.at("texture").get_to(p.path);
         j.at("section").get_to(p.set);
+        j.at("texture").get_to(p.path);
+        
+        std::string rawArea = j["area"];
+        p.area = magic_enum::enum_cast<OverlayArea>(rawArea, magic_enum::case_insensitive).value_or(OverlayArea::Invalid);
+        
+
+        // TODO: add area parsing
+        
         // TODO: add requirement/conflict parsing
         // TODO: convert remaining to meta fields
-        // TODO: add area parsing
 
         // j.at("in_bsa").get_to(p.skipFileCheck);
         // j.at("event").get_to(p.event);

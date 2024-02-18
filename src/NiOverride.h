@@ -80,10 +80,12 @@ namespace OM {
         }
 
         static inline void Init() {
-            HMODULE baseAddress = GetModuleHandleA("skee64.dll");
-            char* func_start;
-            
             // TODO: check version at runtime and swap addresses
+            // use actual racemenu if game version > 640
+
+            HMODULE baseAddress = GetModuleHandleA("skee64.dll");
+            char* func_start; 
+
             std::vector addresses = _addresses640;
             
             func_start = (char*)baseAddress + addresses[0];
@@ -194,7 +196,6 @@ namespace OM {
 
         static inline std::vector<int> _addresses97 {  };
         static inline std::vector<int> _addresses640 { 0xA5EF0, 0xA5F00, 0xA5F10, 0xA5F20, 0xCA230, 0xCA160, 0xCA3C0, 0xC9AD0, 0xC9860, 0xC9D20, 0xA5CA0, 0xA20A0 };
-        static inline std::vector<int> _addresses1170 {  };
 
         static inline RE::StaticFunctionTag _base;
     };

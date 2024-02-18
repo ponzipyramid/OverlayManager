@@ -24,7 +24,7 @@ add_rules("plugin.vsxmake.autoupdate")
 set_policy("package.requires_lock", true)
 
 -- require packages
-add_requires("commonlibsse-ng", { configs = { skyrim_vr = false } })
+add_requires("commonlibsse-ng")
 add_requires("magic_enum", "nlohmann_json")
 
 -- targets
@@ -35,7 +35,7 @@ target("OverlayManager")
     -- add commonlibsse-ng plugin
     add_rules("@commonlibsse-ng/plugin", {
         name = "OverlayManager",
-        author = "Qudix",
+        author = "ponzipyramid",
         description = "SKSE64 plugin template using CommonLibSSE-NG"
     })
 

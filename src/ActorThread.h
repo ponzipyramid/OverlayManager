@@ -20,6 +20,7 @@ namespace OM {
         bool RemoveOverlay(std::string_view a_context, std::string_view a_id);
 
         inline std::unordered_set<std::string_view> GetOverlaysByContext(std::string_view a_context) { return _contexts[a_context]; }
+        inline OverlayData* GetOverlayData(std::string_view a_id) { return _active.count(a_id) ? &_active[a_id] : nullptr; }
     private:
         int GetAvailableSlot(OverlayArea a_area);
         

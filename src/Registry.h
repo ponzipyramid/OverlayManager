@@ -19,18 +19,38 @@ namespace OM {
                 
                 logs::info("processing: {}", path.string());
 
-
                 std::ifstream f(entry.path());
                 json data = json::parse(f);
 
                 auto tats = data.template get<std::vector<OverlayST>>();
-                _overlays.insert(_overlays.end(), tats.begin(), tats.end());
+                
+                _overlays.reserve(tats.size());
 
-                logs::info("Num STs found: {}", _overlays.size());
+                std::set<std::string_view> seen;
+                for (auto& tat : tats) {
+                    if (tat.IsValid()) {
+                        logs::info("skipping {}/{}: invalid data", tat.set, tat.name);
+                        continue;
+                    }
+                    if (seen.contains(tat.path)) {
+                        logs::info("skipping {}/{}: duplicate path", tat.set, tat.name);
+                        continue;
+                    }
+
+                    _overlays.push_back(tat);
+                    seen.insert(tat.path);
+                }
+
+                logs::info("Num STs found: {}", tats.size());
             }
 
             // TODO: ingest all OM JSONs
+
+            for (auto& ovl : _overlays) {
+                _overlaysById[ovl.path] = &ovl;
+            }
         };
+        
         static inline void Init() {
             // TODO: convert all meta field forms
         }

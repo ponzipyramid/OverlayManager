@@ -1,6 +1,7 @@
 #include "ActorManager.h"
 #include "Legacy.h"
 #include "JCApi.h"
+#include "Registry.h"
 
 using namespace OM;
 
@@ -15,12 +16,12 @@ void ActorManager::SyncContext(RE::Actor* a_target, std::string_view a_context, 
         // clear removed overlays
         // populate lists
 
-        auto contextOvls = Legacy::ConvertJArrayToVector(a_list);
+        auto contextOvls = Legacy::PopulateVector(a_list);
         auto currOvls = thread->GetOverlaysByContext(a_context);
 
-        std::vector<std::string_view> failed;
-        std::vector<std::string_view> added;
-        std::vector<std::string_view> removed;
+        std::vector<std::pair<std::string_view, Overlay*>> curr;
+        std::vector<std::pair<std::string_view, Overlay*>> added;
+        std::vector<std::pair<std::string_view, Overlay*>> removed;
 
         std::unordered_set<std::string_view> seen;
         for (auto ovl : contextOvls) {
@@ -30,26 +31,31 @@ void ActorManager::SyncContext(RE::Actor* a_target, std::string_view a_context, 
         for (auto ovl : currOvls) {
             if (!seen.contains(ovl)) {
                 thread->RemoveOverlay(a_context, ovl);
-                removed.push_back(ovl);
+                removed.push_back({ovl, Registry::GetOverlay(ovl)});
             }
         }
 
         for (auto ovl : contextOvls) {
             auto [color, alpha, glow, gloss, bump, _] = ovl.second;
-            
+
+            std::pair pair = {ovl.first, Registry::GetOverlay(ovl.first)};
+
             switch (thread->AddOverlay(a_context, ovl.first, color, alpha, glow, gloss, bump, "")) {
                 case AddResult::Added:
-                    added.emplace_back(ovl.first);
+                    added.emplace_back(pair);
+                    /* FALLTHROUGH */
+                case AddResult::Modified:
+                    curr.emplace_back(pair);
                     break;
                 case AddResult::Failed:
-                    failed.emplace_back(ovl.first);
+                    curr.emplace_back(pair);
                     break;
             }
         }
-
-        // TODO: sync a_list
-        // TODO: sync a_added
-        // TODO: sync a_removed
+        
+        Legacy::PopulateJArray(curr, a_list);
+        Legacy::PopulateJArray(added, a_added);
+        Legacy::PopulateJArray(removed, a_removed);
     }
 }
 

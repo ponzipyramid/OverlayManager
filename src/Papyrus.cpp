@@ -9,7 +9,6 @@ DoesOverlayMatch
 GetMatchingOverlays
 GetOverlayObject
 ConvertOverlayList
-SyncContext
 */
 
 using namespace OM;
