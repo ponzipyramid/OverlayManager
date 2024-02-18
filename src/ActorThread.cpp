@@ -23,27 +23,26 @@ AddResult ActorThread::AddOverlay(std::string_view a_context, std::string_view a
     if (!Registry::GetOverlay(a_id)) return result;
 
     if (auto ovl = Registry::GetOverlay(a_id)) {
-        int chosenSlot = -1;
+        auto& [color, alpha, glow, gloss, bump, slot] = _active[a_id];
 
-        if (_active.count(a_id)) {
-            auto& [color, alpha, glow, gloss, bump, slot] = _active[a_id];
-            color = a_color;
-            alpha = a_alpha;
-            glow = a_glow;
-            gloss = a_gloss;
-            bump = a_bump;
+        color = a_color;
+		alpha = a_alpha;
+		glow = a_glow;
+		gloss = a_gloss;
+		bump = a_bump;
 
+        if (_active.count(a_replaceId) && NiOverride::GetPath(_actor, _female, ovl->area, slot) == a_id) {
+			slot = _active[a_replaceId].slot;
+        } else if (slot < 0 || NiOverride::GetPath(_actor, _female, ovl->area, slot) != a_id) {
+			slot = GetAvailableSlot(ovl->area);
+		}
 
-            if (NiOverride::GetPath(_actor, _female, ovl->area, slot) == a_id) {
-                chosenSlot = slot;
-                result = AddResult::Modified;
-            }
-        }
+        if (slot < 0) return result;
 
-        chosenSlot = chosenSlot < 0 ? GetAvailableSlot(ovl->area) : chosenSlot;
-        if (chosenSlot < 0) return result;
+        NiOverride::ApplyOverlay(_actor, _female, ovl->area, slot, ovl->GetPath(), color, alpha, glow, gloss, bump);
 
-        NiOverride::ApplyOverlay(_actor, _female, ovl->area, chosenSlot, ovl->path, a_color, a_glow, a_gloss, a_bump, a_alpha);
+        _contexts[a_context].insert(ovl->GetPath());
+
         return result;
 
     }

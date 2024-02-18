@@ -33,7 +33,7 @@ namespace OM {
             return path != "" && set != "" && name != "" && area != OverlayArea::Invalid;
         }
         virtual std::string_view GetPath() {
-			return "";
+			return path;
         } 
 
         std::string path;

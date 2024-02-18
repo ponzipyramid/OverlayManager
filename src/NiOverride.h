@@ -41,7 +41,8 @@ namespace OM {
             return GetNodeOverrideString(a_target, a_female, nodeName, 9, 0);
         }
 
-        static void ApplyOverlay(RE::Actor* a_target, bool a_female, OverlayArea a_area, int a_slot, std::string_view a_path, int a_color, int a_glow, bool a_gloss, std::string_view a_bump, float a_alpha) {
+        static void ApplyOverlay(RE::Actor* a_target, bool a_female, OverlayArea a_area, int a_slot, std::string_view a_path, int a_color, float a_alpha, int a_glow, bool a_gloss, std::string_view a_bump)
+		{
             auto nodeName = GetNode(a_area, a_slot);
 
             AddNodeOverrideString(a_target, a_female, nodeName, 9, 0, std::string(a_path), true);

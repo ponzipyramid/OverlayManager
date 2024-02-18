@@ -53,9 +53,9 @@ void ActorManager::SyncContext(RE::Actor* a_target, std::string_view a_context, 
             }
         }
         
-        Legacy::PopulateJArray(curr, a_list);
-        Legacy::PopulateJArray(added, a_added);
-        Legacy::PopulateJArray(removed, a_removed);
+        Legacy::PopulateJArray(curr, a_list, true);
+		Legacy::PopulateJArray(added, a_added, true);
+        Legacy::PopulateJArray(removed, a_removed, true);
     }
 }
 
