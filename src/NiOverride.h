@@ -1,5 +1,6 @@
 #pragma once
 #include "Overlay.h"
+#include <thread>
 
 namespace OM {
 
@@ -46,7 +47,6 @@ namespace OM {
 		{
 			logger::info("ApplyOverlay {} {} {} {} {} {} {} {} {} {}", a_target != nullptr, a_female, (int) a_area, a_slot, std::string(a_path), a_color, a_alpha, a_glow, a_gloss, std::string(a_bump));
 			auto nodeName = GetNode(a_area, a_slot);
-			logger::info("Node: {}", nodeName);
 
             AddNodeOverrideString(a_target, a_female, nodeName, 9, 0, std::string(a_path), true);
 
@@ -70,17 +70,24 @@ namespace OM {
         static void ClearOverlay(RE::Actor* a_target, bool a_female, OverlayArea a_area, int a_slot) {
             auto nodeName = GetNode(a_area, a_slot);
 
-            AddNodeOverrideString(a_target, a_female, nodeName, 9, 0, std::format("{}\\blank.dds", ST_PATH), true);
+			logger::info("ClearOverlay: clearing {}", nodeName);
+
+            AddNodeOverrideString(a_target, a_female, nodeName, 9, 0, "actors\\character\\overlays\\default.dds", true);
             
             if (HasNodeOverride(a_target, a_female, nodeName, 9, 1)) {
-				AddNodeOverrideString(a_target, a_female, nodeName, 9, 1, std::format("{}\\blank.dds", ST_PATH), true);
-                RemoveNodeOverride(a_target, a_female, nodeName, 9, 1);
+				AddNodeOverrideString(a_target, a_female, nodeName, 9, 1, "actors\\character\\overlays\\default.dds", true);
             }
 
-            RemoveNodeOverride(a_target, a_female, nodeName, 9, 0);
+            NiOverride::ApplyNodeOverrides(a_target);
+
+            RemoveNodeOverride(a_target, a_female, nodeName, 9, 1);
+			RemoveNodeOverride(a_target, a_female, nodeName, 9, 0);
             RemoveNodeOverride(a_target, a_female, nodeName, 7, -1);
             RemoveNodeOverride(a_target, a_female, nodeName, 0, -1);
             RemoveNodeOverride(a_target, a_female, nodeName, 8, -1);
+
+			logger::info("ClearOverlay: finished clearing {}", nodeName);
+
         }
 
         static inline void Init() {
@@ -229,8 +236,8 @@ namespace OM {
 			0xC9AD0,
 			0xC9860,
 			0xC9D20,
-			0xA5940, 
-            0xA5CA0,
+			0xA5940, // has node overrides
+            0xA5CA0, // remove node overrides
 			0xA5930,
 			0xA5350
 		};

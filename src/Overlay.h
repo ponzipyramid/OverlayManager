@@ -4,6 +4,7 @@
 #define PREFIX_PATH "data\\textures"
 #define ST_PATH "actors\\character\\slavetats"
 #define OM_PATH "data\\textures\\om"
+#define BLANK_PATH "om\\blank.dds"
 
 using json = nlohmann::json;
 namespace fs = std::filesystem;

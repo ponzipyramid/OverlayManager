@@ -1,6 +1,6 @@
-# CommonLibSSE-NG Plugin Template
+# Overlay Manager
 
-Template for building SKSE plugins using the NG branch of CommonLibVR.  
+SKSE Plugin for easier and faster Racemenu overlay management. 
 
 ## Requirements
 
@@ -33,8 +33,8 @@ Template for building SKSE plugins using the NG branch of CommonLibVR.
 Open terminal (e.g., PowerShell) and run the following commands:
 
 ```
-git clone https://github.com/ponzipyramid/CommonLibSSE-NG-Template.git --recursive
-cd CommonLibSSE-NG-Template
+git clone https://github.com/ponzipyramid/OverlayManager.git --recursive
+cd OverlayManager
 .\BuildRelease.bat
 ```
 

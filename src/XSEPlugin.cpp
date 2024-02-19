@@ -36,14 +36,15 @@ void InitializeMessaging() {
 
 	if (!SKSE::GetMessagingInterface()->RegisterListener([](SKSE::MessagingInterface::Message* message) {
 		if (message->type == SKSE::MessagingInterface::kPostLoad) {
-			NiOverride::Init();
-			
 			SKSE::GetMessagingInterface()->RegisterListener(JC_PLUGIN_NAME, [](SKSE::MessagingInterface::Message* a_msg) {
 				if (a_msg && a_msg->type == jc::message_root_interface) {
 					if (const jc::root_interface* root = jc::root_interface::from_void(a_msg->data))
 						JC::Api::Init(root);
 				}
 			});
+			
+			NiOverride::Init();
+
 		} else if (message->type == SKSE::MessagingInterface::kDataLoaded) {
 			Registry::Init();
 		}
