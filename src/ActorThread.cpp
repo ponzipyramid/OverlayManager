@@ -3,7 +3,6 @@
 
 using namespace OM;
 
-
 int ActorThread::GetAvailableSlot(OverlayArea a_area) {
     int max = NiOverride::GetNumOverlays(a_area);
     for (int i = 0; i < max; i++) {
@@ -20,7 +19,12 @@ int ActorThread::GetAvailableSlot(OverlayArea a_area) {
 AddResult ActorThread::AddOverlay(std::string_view a_context, std::string_view a_id, int a_color, float a_alpha, int a_glow, int a_gloss, std::string_view a_bump, std::string_view a_replaceId) {
     AddResult result = AddResult::Failed;
     
-    if (!Registry::GetOverlay(a_id)) return result;
+    if (!Registry::GetOverlay(a_id)) {
+		logger::info("could not find overlay id {}", a_id);
+		return result;
+    }
+
+    logger::info("AddOverlay");
 
     if (auto ovl = Registry::GetOverlay(a_id)) {
         auto& [color, alpha, glow, gloss, bump, slot] = _active[a_id];
@@ -31,17 +35,19 @@ AddResult ActorThread::AddOverlay(std::string_view a_context, std::string_view a
 		gloss = a_gloss;
 		bump = a_bump;
 
-        if (_active.count(a_replaceId) && NiOverride::GetPath(_actor, _female, ovl->area, slot) == a_id) {
+        if (_active.count(a_replaceId) && NiOverride::GetPath(_actor, _female, ovl->area, _active[a_replaceId].slot) == a_replaceId) {
 			slot = _active[a_replaceId].slot;
         } else if (slot < 0 || NiOverride::GetPath(_actor, _female, ovl->area, slot) != a_id) {
 			slot = GetAvailableSlot(ovl->area);
 		}
 
+        logger::info("Found slot: {}", slot);
+
         if (slot < 0) return result;
 
-        NiOverride::ApplyOverlay(_actor, _female, ovl->area, slot, ovl->GetPath(), color, alpha, glow, gloss, bump);
+        NiOverride::ApplyOverlay(_actor, _female, ovl->area, slot, ovl->path, color, alpha, glow, gloss, bump);
 
-        _contexts[a_context].insert(ovl->GetPath());
+        _contexts[a_context].insert(ovl->path);
 
         return result;
 
@@ -53,6 +59,8 @@ AddResult ActorThread::AddOverlay(std::string_view a_context, std::string_view a
 bool ActorThread::RemoveOverlay(std::string_view a_context, std::string_view a_id) {
 
     if (!_active.count(a_id)) return false;
+
+    logger::info("RemoveOverlay");
 
     auto ovl = Registry::GetOverlay(a_id);
     auto data = _active[a_id];

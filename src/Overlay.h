@@ -1,6 +1,12 @@
 #pragma once
 
+
+#define PREFIX_PATH "data\\textures"
+#define ST_PATH "actors\\character\\slavetats"
+#define OM_PATH "data\\textures\\om"
+
 using json = nlohmann::json;
+namespace fs = std::filesystem;
 
 namespace OM {
     enum OverlayArea {
@@ -29,12 +35,8 @@ namespace OM {
 
     struct Overlay {
         inline bool IsValid() {
-            // TODO: implement file existence check
-            return path != "" && set != "" && name != "" && area != OverlayArea::Invalid;
+			return path != "" && (skipFileCheck || fs::exists(std::format("{}\\{}", PREFIX_PATH, path))) && set != "" && name != "" && area != OverlayArea::Invalid;
         }
-        virtual std::string_view GetPath() {
-			return path;
-        } 
 
         std::string path;
         std::string_view root;
@@ -64,19 +66,18 @@ namespace OM {
     inline void from_json(const json& j, OverlayST& p) {
         j.at("name").get_to(p.name);
         j.at("section").get_to(p.set);
-        j.at("texture").get_to(p.path);
+
+		std::string path = j.at("texture");
+        p.path = std::format("{}\\{}", ST_PATH, path);
         
         std::string rawArea = j["area"];
         p.area = magic_enum::enum_cast<OverlayArea>(rawArea, magic_enum::case_insensitive).value_or(OverlayArea::Invalid);
-        
 
-        // TODO: add area parsing
-        
+        p.skipFileCheck = j.value("in_bsa", false);
+		p.event = j.value("event", "");
+		p.author = j.value("credit", "");
+
         // TODO: add requirement/conflict parsing
-        // TODO: convert remaining to meta fields
-
-        // j.at("in_bsa").get_to(p.skipFileCheck);
-        // j.at("event").get_to(p.event);
-        // j.at("credit").get_to(p.author);
+		// TODO: convert other keys to meta fields
     }
 }

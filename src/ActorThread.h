@@ -13,7 +13,12 @@ namespace OM {
     public:
         ActorThread(RE::Actor* a_actor) { 
             _actor = a_actor; 
-            _female = _actor->GetActorBase()->GetSex() == 0;
+            _female = _actor->GetActorBase()->GetSex() == 1;
+
+            
+            if (a_actor->GetFormID() != 14) {
+				NiOverride::CheckAndAddOverlays(a_actor);
+			}
         }
 
         AddResult AddOverlay(std::string_view a_context, std::string_view a_id, int a_color, float a_alpha, int a_glow, int a_gloss, std::string_view a_bump, std::string_view a_replaceId);        

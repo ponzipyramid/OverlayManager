@@ -1,8 +1,6 @@
 #pragma once
 #include "Overlay.h"
 
-#define PREFIX "Actors\\Character\\slavetats"
-
 namespace OM {
 
     typedef void (*AddNodeOverrideIntFunc)(RE::StaticFunctionTag*, RE::TESObjectREFR*, bool, std::string, int, int, int, bool);
@@ -18,6 +16,9 @@ namespace OM {
     typedef bool (*HasNodeOverrideFunc)(RE::StaticFunctionTag*, RE::TESObjectREFR*, bool, std::string, int, int);
     
     typedef void (*RemoveNodeOverrideFunc)(RE::StaticFunctionTag*, RE::TESObjectREFR*, bool, std::string, int, int);
+
+    typedef void (*ApplyNodeOverridesFunc)(RE::StaticFunctionTag*, RE::TESObjectREFR*);
+	typedef void (*AddOverlaysFunc)(RE::StaticFunctionTag*, RE::TESObjectREFR*);
 
     class NiOverride {
     public:
@@ -43,7 +44,9 @@ namespace OM {
 
         static void ApplyOverlay(RE::Actor* a_target, bool a_female, OverlayArea a_area, int a_slot, std::string_view a_path, int a_color, float a_alpha, int a_glow, bool a_gloss, std::string_view a_bump)
 		{
-            auto nodeName = GetNode(a_area, a_slot);
+			logger::info("ApplyOverlay {} {} {} {} {} {} {} {} {} {}", a_target != nullptr, a_female, (int) a_area, a_slot, std::string(a_path), a_color, a_alpha, a_glow, a_gloss, std::string(a_bump));
+			auto nodeName = GetNode(a_area, a_slot);
+			logger::info("Node: {}", nodeName);
 
             AddNodeOverrideString(a_target, a_female, nodeName, 9, 0, std::string(a_path), true);
 
@@ -67,10 +70,10 @@ namespace OM {
         static void ClearOverlay(RE::Actor* a_target, bool a_female, OverlayArea a_area, int a_slot) {
             auto nodeName = GetNode(a_area, a_slot);
 
-            AddNodeOverrideString(a_target, a_female, nodeName, 9, 0, std::format("{}\\blank.dds", PREFIX), true);
+            AddNodeOverrideString(a_target, a_female, nodeName, 9, 0, std::format("{}\\blank.dds", ST_PATH), true);
             
             if (HasNodeOverride(a_target, a_female, nodeName, 9, 1)) {
-                AddNodeOverrideString(a_target, a_female, nodeName, 9, 1, std::format("{}\\blank.dds", PREFIX), true);
+				AddNodeOverrideString(a_target, a_female, nodeName, 9, 1, std::format("{}\\blank.dds", ST_PATH), true);
                 RemoveNodeOverride(a_target, a_female, nodeName, 9, 1);
             }
 
@@ -124,7 +127,22 @@ namespace OM {
 
             func_start = (char*)baseAddress + addresses[11];
             _RemoveNodeOverride = (RemoveNodeOverrideFunc) func_start;
+
+            func_start = (char*)baseAddress + addresses[12];
+			_ApplyNodeOverrides = (ApplyNodeOverridesFunc)func_start;
+
+            func_start = (char*)baseAddress + addresses[13];
+			_AddOverlays = (AddOverlaysFunc)func_start;
         }
+
+        static inline void CheckAndAddOverlays(RE::Actor* a_actor) {
+			return _AddOverlays(&_base, a_actor);
+        }
+
+        static inline void ApplyNodeOverrides(RE::Actor* a_actor)
+		{
+			return _ApplyNodeOverrides(&_base, a_actor);
+		}
     private:
         static inline std::string GetNode(OverlayArea a_area, int a_slot) {
             return std::format("{} [ovl{}]", magic_enum::enum_name(a_area), a_slot);
@@ -192,11 +210,30 @@ namespace OM {
         static inline AddNodeOverrideStringFunc _AddNodeOverrideString;
 
         static inline HasNodeOverrideFunc _HasNodeOverride;
-        
+         
         static inline RemoveNodeOverrideFunc _RemoveNodeOverride;
 
+        static inline ApplyNodeOverridesFunc _ApplyNodeOverrides;
+		static inline AddOverlaysFunc _AddOverlays;
+
+
         static inline std::vector<int> _addresses97 {  };
-        static inline std::vector<int> _addresses640 { 0xA5EF0, 0xA5F00, 0xA5F10, 0xA5F20, 0xCA230, 0xCA160, 0xCA3C0, 0xC9AD0, 0xC9860, 0xC9D20, 0xA5CA0, 0xA20A0 };
+		static inline std::vector<int> _addresses640{
+			0xA5EF0,
+			0xA5F00,
+			0xA5F10,
+			0xA5F20,
+			0xCA230,
+			0xCA160,
+			0xCA3C0,
+			0xC9AD0,
+			0xC9860,
+			0xC9D20,
+			0xA5940, 
+            0xA5CA0,
+			0xA5930,
+			0xA5350
+		};
 
         static inline RE::StaticFunctionTag _base;
     };

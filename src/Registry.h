@@ -1,9 +1,6 @@
 #pragma once
 #include "Overlay.h"
 
-#define ST_PATH "data/textures/actors/character/slavetats"
-#define OM_PATH "data/textures/om"
-
 namespace fs = std::filesystem;
 using json = nlohmann::json;
 
@@ -11,7 +8,10 @@ namespace OM {
     class Registry {
     public:
         static inline void Read() {
-            for (const auto& entry : fs::directory_iterator(ST_PATH)) {
+			auto dir = std::format("{}\\{}", PREFIX_PATH, ST_PATH);
+			logger::info("Directory: {}", dir);
+
+            for (const auto& entry : fs::directory_iterator(dir)) {
                 auto path = entry.path();
 
                 if (entry.is_directory()) continue;
@@ -28,7 +28,7 @@ namespace OM {
 
                 std::set<std::string_view> seen;
                 for (auto& tat : tats) {
-                    if (tat.IsValid()) {
+                    if (!tat.IsValid()) {
                         logger::info("skipping {}/{}: invalid data", tat.set, tat.name);
                         continue;
                     }
@@ -40,9 +40,10 @@ namespace OM {
                     _overlays.push_back(tat);
                     seen.insert(tat.path);
                 }
-
-                logger::info("Num STs found: {}", tats.size());
             }
+
+            logger::info("Num STs found: {}", _overlays.size());
+
 
             // TODO: ingest all OM JSONs
 

@@ -17,6 +17,7 @@ namespace {
     constexpr std::string_view PapyrusClass = "OverlayManager";
 
     void SyncContext(RE::StaticFunctionTag*, RE::Actor* a_target, std::string a_context, int a_list, int a_added, int a_removed) {
+		logger::info("SyncContext {} {} {} {} {}", a_target->GetFormID(), a_context, a_list, a_added, a_removed);
         ActorManager::SyncContext(a_target, a_context, a_list, a_added, a_removed);
     }
    

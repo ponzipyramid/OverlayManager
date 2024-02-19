@@ -9,53 +9,50 @@ void ActorManager::SyncContext(RE::Actor* a_target, std::string_view a_context, 
     if (!a_target) return;
     if (!JC::Api::IsInit()) return;
 
+    logger::info("Syncing now");
+
     if (auto thread = GetOrCreateActorThread(a_target)) {
-        // get overlays in context
+		logger::info("Syncing for real");
+		// get overlays in context
         // diff with list 
         // add new overlays
         // clear removed overlays
         // populate lists
 
         auto contextOvls = Legacy::PopulateVector(a_list);
-        auto currOvls = thread->GetOverlaysByContext(a_context);
+        auto currIds = thread->GetOverlaysByContext(a_context);
 
-        std::vector<std::pair<std::string_view, Overlay*>> curr;
-        std::vector<std::pair<std::string_view, Overlay*>> added;
-        std::vector<std::pair<std::string_view, Overlay*>> removed;
+        logger::info("contextOvls: {}", contextOvls.size());
 
-        std::unordered_set<std::string_view> seen;
-        for (auto ovl : contextOvls) {
-            seen.insert(ovl.first);
+
+        std::unordered_map<std::string_view, int> seen;
+		for (int i = 0; i < contextOvls.size(); i++) {
+			seen[contextOvls[i].first] = i;
         }
 
-        for (auto ovl : currOvls) {
-            if (!seen.contains(ovl)) {
-                thread->RemoveOverlay(a_context, ovl);
-                removed.push_back({ovl, Registry::GetOverlay(ovl)});
+        for (auto id : currIds) {
+			if (!seen.contains(id)) {
+				thread->RemoveOverlay(a_context, id);
+				JArray::addObj(a_removed, seen[id]);
             }
         }
 
-        for (auto ovl : contextOvls) {
-            auto [color, alpha, glow, gloss, bump, _] = ovl.second;
+        for (auto [id, data] : contextOvls) {
+            auto [color, alpha, glow, gloss, bump, _] = data;
 
-            std::pair pair = {ovl.first, Registry::GetOverlay(ovl.first)};
+            logger::info("Adding overlay {}", id.data());
 
-            switch (thread->AddOverlay(a_context, ovl.first, color, alpha, glow, gloss, bump, "")) {
-                case AddResult::Added:
-                    added.emplace_back(pair);
-                    /* FALLTHROUGH */
-                case AddResult::Modified:
-                    curr.emplace_back(pair);
-                    break;
-                case AddResult::Failed:
-                    curr.emplace_back(pair);
-                    break;
-            }
+            switch (thread->AddOverlay(a_context, id, color, alpha, glow, gloss, bump, "")) {
+			case AddResult::Added:
+				JArray::addObj(a_added, seen[id]);
+				break;
+			case AddResult::Failed:
+				JArray::eraseIndex(a_list, seen[id]);
+				break;
+			}
         }
-        
-        Legacy::PopulateJArray(curr, a_list, true);
-		Legacy::PopulateJArray(added, a_added, true);
-        Legacy::PopulateJArray(removed, a_removed, true);
+
+        NiOverride::ApplyNodeOverrides(a_target);
     }
 }
 
