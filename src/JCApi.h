@@ -28,6 +28,9 @@ namespace OM::JC {
 	inline int (*JMap_object)(void*) = nullptr;
 	inline void (*JArray_addObj)(void*, int32_t a_arr, int32_t a_obj, int32_t a_index) = nullptr;
 	inline void (*JArray_eraseIndex)(void*, int32_t a_arr, int32_t a_index) = nullptr;
+	inline void (*JMap_setInt)(void*, int32_t a_obj, RE::BSFixedString a_key, int a_value) = nullptr;
+	inline void (*JMap_setFlt)(void*, int32_t a_obj, RE::BSFixedString a_key, float a_value) = nullptr;
+	inline void (*JMap_setStr)(void*, int32_t a_obj, RE::BSFixedString a_key, RE::BSFixedString a_value) = nullptr;
 
     class Api {
     public:
@@ -46,6 +49,10 @@ namespace OM::JC {
 			obtain_func(refl, "object", "JMap", JMap_object);
 			obtain_func(refl, "addObj", "JArray", JArray_addObj);
 			obtain_func(refl, "eraseIndex", "JArray", JArray_eraseIndex);
+			
+            obtain_func(refl, "setFlt", "JMap", JMap_setFlt);
+			obtain_func(refl, "SetInt", "JMap", JMap_setInt);
+			obtain_func(refl, "setStr", "JMap", JMap_setStr);
 
             default_domain = root->query_interface<jc::domain_interface>()->get_default_domain();
 
@@ -112,5 +119,23 @@ namespace OM::JC {
         static inline float getFlt(Handle a_obj, RE::BSFixedString a_key, float a_default = 0.f) {
 			return JMap_getFlt ? JMap_getFlt(default_domain, a_obj, a_key, a_default) : 0.0f;
         }
+
+        static inline void setStr(Handle a_obj, RE::BSFixedString a_key, RE::BSFixedString a_value = "")
+		{
+			if (JMap_getStr)
+				JMap_setStr(default_domain, a_obj, a_key, a_value);
+		}
+
+		static inline void setInt(Handle a_obj, RE::BSFixedString a_key, int32_t a_value = 0)
+		{
+			if (JMap_getInt)
+				JMap_setInt(default_domain, a_obj, a_key, a_value);
+		}
+
+		static inline void setFlt(Handle a_obj, RE::BSFixedString a_key, float a_value = 0.f)
+		{
+			if (JMap_getFlt) 
+                JMap_setFlt(default_domain, a_obj, a_key, a_value);
+		}
     };
 }

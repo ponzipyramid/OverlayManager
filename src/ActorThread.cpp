@@ -4,20 +4,30 @@
 
 using namespace OM;
 
-int ActorThread::GetAvailableSlot(OverlayArea a_area) {
+int ActorThread::GetAvailableSlot(OverlayArea a_area, int a_applied)
+{
+	std::unordered_set<int> occupied;
+	auto tats = Util::PopulateVector(a_applied);
+	for (auto& [_, data] : tats) {
+		if (data.slot >= 0)
+		    occupied.insert(data.slot);
+    }
+
     int max = NiOverride::GetNumOverlays(a_area);
+	
     for (int i = 0; i < max; i++) {
         auto path = NiOverride::GetPath(_actor, _female, a_area, i);
 
-        // TODO: improve check
-		if (Util::IsSlotOpen(path)) {
+		if (Util::IsSlotOpen(path) && !occupied.contains(i)) {
             return i;
         }
+
+
     }
     return -1;
 }
 
-AddResult ActorThread::AddOverlay(std::string a_context, std::string a_id, int a_color, float a_alpha, int a_glow, int a_gloss, std::string a_bump, std::string a_replaceId, int a_slot)
+AddResult ActorThread::AddOverlay(std::string a_context, std::string a_id, int a_color, float a_alpha, int a_glow, int a_gloss, std::string a_bump, std::string a_replaceId, int)
 {
     AddResult result = AddResult::Failed;
     
@@ -48,10 +58,10 @@ AddResult ActorThread::AddOverlay(std::string a_context, std::string a_id, int a
 			result = AddResult::Added;
 		} 
 
-        if (a_slot >= - 1) {
-            // TODO: validate further
+        // TODO: add back forced slot setting
+		/*if (a_slot >= -1) {
 			slot = a_slot;
-        }
+        }*/
 
         logger::info("Found slot: {}", slot);
 
@@ -90,11 +100,11 @@ bool ActorThread::RemoveOverlay(std::string a_context, std::string a_id)
     // don't clear if we've been overwritten by smth else
 	auto path = NiOverride::GetPath(_actor, _female, ovl->area, data.slot);
 
-    logger::info("RemoveOverlay: matching {} {} = {}", path, a_id, path == a_id);
-
     if (path == a_id) {
 		NiOverride::ClearOverlay(_actor, _female, ovl->area, data.slot);
     }
+
+	logger::info("RemoveOverlay: matching {} {}", path, data.slot);
 
     _active.erase(a_id);
     _contexts[a_context].erase(a_id);
@@ -116,4 +126,37 @@ std::vector<int> ActorThread::GetExternalOverlaySlots(std::string a_context, Ove
     }
 
     return slots;
+}
+
+void ActorThread::Update() 
+{
+	if (!_initialized && _actor->Is3DLoaded()) {
+        // TODO: complete
+        for (auto area : Areas) {
+			auto numSlots = NiOverride::GetNumOverlays(area);
+            for (int slot = 0; slot < numSlots; slot++) {
+				NiOverride::ClearOverlay(_actor, _female, area, slot);
+            }
+        }
+
+		_initialized = true;
+    }
+
+    // TODO: set/check update time
+    // TODO: update if any effects are present
+}
+
+ActorThread::ActorThread(SKSE::SerializationInterface* a_intfc)
+{
+
+}
+
+void ActorThread::Serialize(SKSE::SerializationInterface* a_intfc)
+{
+
+}
+
+bool ActorThread::IsValid()
+{
+	return _actor != nullptr;
 }

@@ -18,6 +18,8 @@ namespace OM {
         Face,
     };
 
+    const std::vector<OverlayArea> Areas{ Body, Hands, Feet, Face };
+
     enum MetaType {
         Form,
         Int,
@@ -40,12 +42,12 @@ namespace OM {
         }
 
         std::string path;
-        std::string_view root;
-        std::string_view set;
-        std::string_view name;
+		std::string base;
+		std::string set;
+        std::string name;
         OverlayArea area;
-        std::string_view event;
-        std::string_view author;
+		std::string event;
+		std::string author;
         bool skipFileCheck;
 
         std::unordered_map<std::string, MetaField> meta;
@@ -68,8 +70,8 @@ namespace OM {
         j.at("name").get_to(p.name);
         j.at("section").get_to(p.set);
 
-		std::string path = j.at("texture");
-        p.path = std::format("{}\\{}", ST_PATH, path);
+		p.base = j.at("texture");
+		p.path = std::format("{}\\{}", ST_PATH, p.base);
         
         std::string rawArea = j["area"];
         p.area = magic_enum::enum_cast<OverlayArea>(rawArea, magic_enum::case_insensitive).value_or(OverlayArea::Invalid);

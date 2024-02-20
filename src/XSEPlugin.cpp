@@ -2,6 +2,8 @@
 #include "JCApi.h"
 #include "NiOverride.h"
 #include "Registry.h"
+#include "Hooks.h"
+#include "Serialize.h"
 
 #define DLLEXPORT __declspec(dllexport)
 
@@ -31,7 +33,8 @@ void InitializeLog([[maybe_unused]] spdlog::level::level_enum a_level = spdlog::
 	spdlog::set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%l] [%t] [%s:%#] %v");
 }
 
-void InitializeMessaging() {			
+void InitializeMessaging() 
+{			
 	logger::info("initializing messaging");
 
 	if (!SKSE::GetMessagingInterface()->RegisterListener([](SKSE::MessagingInterface::Message* message) {
@@ -53,16 +56,34 @@ void InitializeMessaging() {
 	}
  }
 
+void InitializeSerialization() 
+{
+	const auto serialization = SKSE::GetSerializationInterface();
+	serialization->SetUniqueID(Serialize::RecordName);
+	serialization->SetSaveCallback(Serialize::Save);
+	serialization->SetLoadCallback(Serialize::Load);
+	serialization->SetRevertCallback(Serialize::Revert);
+}
+
+void InitializePapyrus()
+{
+	const auto papyrus = SKSE::GetPapyrusInterface();
+	papyrus->Register(Papyrus::RegisterFunctions);
+}
+
 extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_skse)
 {
 	InitializeLog();
+	
 	logger::info("Loaded plugin {} {}", Plugin::NAME, Plugin::VERSION.string());
 	SKSE::Init(a_skse);
 
-	const auto papyrus = SKSE::GetPapyrusInterface();
-	papyrus->Register(Papyrus::RegisterFunctions);
 	InitializeMessaging();
+	InitializeSerialization();
+	InitializePapyrus();
+
 	Registry::Read();
+	Hooks::Install();
 
 	return true;
 }

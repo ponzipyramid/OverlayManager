@@ -3,7 +3,6 @@
 #include <thread>
 
 namespace OM {
-
     typedef void (*AddNodeOverrideIntFunc)(RE::StaticFunctionTag*, RE::TESObjectREFR*, bool, std::string, int, int, int, bool);
     typedef void (*AddNodeOverrideFloatFunc)(RE::StaticFunctionTag*, RE::TESObjectREFR*, bool, std::string, int, int, float, bool);
     typedef void (*AddNodeOverrideStringFunc)(RE::StaticFunctionTag*, RE::TESObjectREFR*, bool, std::string, int, int, const char*, bool);
@@ -45,7 +44,7 @@ namespace OM {
 
         static void ApplyOverlay(RE::Actor* a_target, bool a_female, OverlayArea a_area, int a_slot, std::string_view a_path, int a_color, float a_alpha, int a_glow, bool a_gloss, std::string_view a_bump)
 		{
-			logger::info("ApplyOverlay {} {} {} {} {} {} {} {} {} {}", a_target != nullptr, a_female, (int) a_area, a_slot, std::string(a_path), a_color, a_alpha, a_glow, a_gloss, std::string(a_bump));
+			//logger::info("ApplyOverlay {} {} {} {} {} {} {} {} {} {}", a_target != nullptr, a_female, (int) a_area, a_slot, std::string(a_path), a_color, a_alpha, a_glow, a_gloss, std::string(a_bump));
 			auto nodeName = GetNode(a_area, a_slot);
 
             AddNodeOverrideString(a_target, a_female, nodeName, 9, 0, std::string(a_path), true);
@@ -70,7 +69,7 @@ namespace OM {
         static void ClearOverlay(RE::Actor* a_target, bool a_female, OverlayArea a_area, int a_slot) {
             auto nodeName = GetNode(a_area, a_slot);
 
-			logger::info("ClearOverlay: clearing {}", nodeName);
+			//logger::info("ClearOverlay: clearing {}", nodeName);
 
             AddNodeOverrideString(a_target, a_female, nodeName, 9, 0, "actors\\character\\overlays\\default.dds", true);
             
@@ -85,8 +84,6 @@ namespace OM {
             RemoveNodeOverride(a_target, a_female, nodeName, 7, -1);
             RemoveNodeOverride(a_target, a_female, nodeName, 0, -1);
             RemoveNodeOverride(a_target, a_female, nodeName, 8, -1);
-
-			logger::info("ClearOverlay: finished clearing {}", nodeName);
 
         }
 

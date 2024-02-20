@@ -2,11 +2,16 @@
 #include "JCApi.h"
 #include "Overlay.h"
 #include "Registry.h"
-
+#include <algorithm>
 using namespace OM::JC;
 
 namespace OM {
     namespace Util {
+		inline void Lowercase(std::string a_str) {
+			std::transform(a_str.begin(), a_str.end(), a_str.begin(),
+				[](unsigned char c) { return (char) std::tolower(c); });
+		}
+
         inline std::vector<std::pair<std::string, OverlayData>> PopulateVector(int a_list) 
 		{
             std::vector<std::pair<std::string, OverlayData>> overlays;
@@ -38,7 +43,7 @@ namespace OM {
 
 		inline OverlayArea GetArea(std::string_view a_area)
 		{
-			return magic_enum::enum_cast<OverlayArea>(a_area).value_or(OverlayArea::Invalid);
+			return magic_enum::enum_cast<OverlayArea>(a_area, magic_enum::case_insensitive).value_or(OverlayArea::Invalid);
 		}
 
 		inline bool IsSlotOpen(std::string_view a_path) {
@@ -73,8 +78,8 @@ namespace OM {
 
 			auto result = !WildcardMatch(a1, a2);
 			
-			/*if (result)
-				logger::info("DiffFieldsStr ({}): {} = {}", a_key, a1, a2, result);*/
+			if (result)
+				logger::info("DiffFieldsStr ({}): {} = {}", a_key, a1, a2, result);
 			return result;
 		}
 
@@ -83,7 +88,7 @@ namespace OM {
 			auto a1 = JMap::getInt(a_template, a_key, -1);
 			auto a2 = JMap::getInt(a_obj, a_key);
 
-			auto result = (a1 == -1) || a1 != a2;
+			auto result = (a1 != -1) && a1 != a2;
 			
 			/*if (result)
 				logger::info("DiffFieldsInt ({}): {} = {}", a_key, a1, a2, result);
@@ -92,9 +97,8 @@ namespace OM {
 		}
 
 
-		inline bool DoesOverlayMatch(int a_template, int a_ovl, bool a_runtime)
+		inline bool DoesOverlayMatch(int a_template, int a_ovl, bool a_runtime = false, bool a_extra = false)
 		{
-			// TODO: implement
 
 			if (DiffFieldsStr(a_template, a_ovl, "name"))
 				return false;
@@ -110,6 +114,10 @@ namespace OM {
 
 			if (DiffFieldsInt(a_template, a_ovl, "slot"))
 				return false;
+
+			if (a_extra) {
+				// TODO: implement a_extra checks (conflicts, requirements incl forms)
+			}
 
 			if (a_runtime) {
 				if (DiffFieldsInt(a_template, a_ovl, "color")) {
@@ -130,6 +138,8 @@ namespace OM {
 
 		inline std::vector<int> GetMatchingOverlays(int a_template, int a_list, int a_matches)
 		{
+			// TODO: if bool = true check domain, exclude, required, required plugin
+
 			//logger::info("GetMatchingOverlays {} {} {}", a_template, a_list, a_matches);
 
 			std::vector<int> matches;
@@ -152,6 +162,52 @@ namespace OM {
 			}
 
 			return matches;
+		}
+
+		inline Handle CreateObject(Overlay* a_ovl) 
+		{
+			auto obj = JMap::object();
+
+			/*
+			name
+			section
+			texture
+			area
+			excluded_by
+			requires
+			requires_plugin
+			requires_formid
+			domain
+			*/
+
+			JMap::setStr(obj, "name", a_ovl->name);
+			JMap::setStr(obj, "section", a_ovl->set);
+			JMap::setStr(obj, "texture", a_ovl->base);
+			JMap::setStr(obj, "area", magic_enum::enum_name(a_ovl->area));
+
+			return obj;
+		}
+
+		inline void GetAllMatchingOverlays(std::string a_context, int a_template, int a_matches)
+		{
+			logger::info("GetAllMatchingOverlays");
+			std::string delimiter = ":";
+			std::string context = a_context.substr(0, a_context.find(delimiter));
+			Lowercase(context);
+
+			// TODO: handle ST domain
+			
+			auto ovls = Registry::GetOverlaysByContext(context);
+			for (auto ovl : ovls) {
+				if (!ovl)
+					return;
+				logger::info("checking ovl: {}", ovl->path);
+				auto obj = CreateObject(ovl);
+				if (DoesOverlayMatch(a_template, obj, false, true)) {
+					logger::info("adding ovl: {}", ovl->path);
+					JArray::addObj(a_matches, obj);
+				}
+			}
 		}
     }
 }
