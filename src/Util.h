@@ -71,8 +71,8 @@ namespace OM {
 
 			auto result = !WildcardMatch(a1, a2);
 			
-			if (result)
-				logger::info("DiffFieldsStr ({}): {} = {}", a_key, a1, a2, result);
+			/*if (result)
+				logger::info("DiffFieldsStr ({}): {} = {}", a_key, a1, a2, result);*/
 			return result;
 		}
 
@@ -106,6 +106,9 @@ namespace OM {
 				return false;
 
 			if (DiffFieldsInt(a_template, a_ovl, "slot"))
+				return false;
+
+			if (DiffFieldsInt(a_template, a_ovl, "domain"))
 				return false;
 
 			if (a_extra) {
@@ -174,6 +177,7 @@ namespace OM {
 			JMap::setStr(obj, "section", a_ovl->set);
 			JMap::setStr(obj, "texture", a_ovl->base);
 			JMap::setStr(obj, "area", magic_enum::enum_name(a_ovl->area));
+			JMap::setStr(obj, "domain", a_ovl->domain);
 
 			return obj;
 		}
@@ -181,13 +185,8 @@ namespace OM {
 		inline void GetAllMatchingOverlays(std::string a_context, int a_template, int a_matches)
 		{
 			logger::info("GetAllMatchingOverlays");
-			std::string delimiter = ":";
-			std::string context = a_context.substr(0, a_context.find(delimiter));
-			Lowercase(context);
-
-			// TODO: handle ST domain
 			
-			auto ovls = Registry::GetOverlaysByContext(context);
+			auto ovls = Registry::GetOverlaysByContext(a_context);
 			for (auto ovl : ovls) {
 				if (!ovl)
 					return;

@@ -35,7 +35,12 @@ namespace OM::JC {
     class Api {
     public:
         static inline void Init(const jc::root_interface* root) {
-            if (!root) return;
+            if (root) {
+				logger::info("initializing JC API");
+            } else {
+				logger::info("failed to initialize JC API");
+				return;
+            }
 
             auto refl = root->query_interface<jc::reflection_interface>();
 

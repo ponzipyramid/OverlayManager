@@ -53,10 +53,6 @@ namespace OM {
             }
         };
         
-        static inline void Init() {
-            // TODO: convert all meta field forms
-        }
-
         static inline Overlay* GetOverlay(std::string_view a_id) { return _overlaysById[a_id]; }
 		static inline std::vector<Overlay*> GetOverlaysByContext(std::string a_context) { return _overlaysByContext[a_context]; }
     private:

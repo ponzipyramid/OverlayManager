@@ -2,11 +2,6 @@
 #include "ActorManager.h"
 #include "Util.h"
 
-/*
-GetOverlayMetaString
-GetOverlayMetaForm
-*/
-
 using namespace OM;
 
 namespace {
@@ -41,6 +36,38 @@ namespace {
 	{
 		return Util::GetAllMatchingOverlays(a_context, a_template, a_matches);
 	}
+
+	std::string GetEvent(RE::StaticFunctionTag*, std::string a_id)
+	{
+		if (auto ovl = Registry::GetOverlay(a_id))
+			return ovl->event;
+		else
+			return "";
+	}
+
+	std::string GetOverlayMetaString(RE::StaticFunctionTag*, std::string a_id, std::string a_key, std::string a_default) 
+	{
+		if (auto ovl = Registry::GetOverlay(a_id))
+			return ovl->GetMetaStr(a_key, a_default);
+		else
+			return a_default;
+	}
+
+	float GetOverlayMetaNumeric(RE::StaticFunctionTag*, std::string a_id, std::string a_key, float a_default)
+	{
+		if (auto ovl = Registry::GetOverlay(a_id))
+			return ovl->GetMetaNum(a_key, a_default);
+		else
+			return a_default;
+	}
+
+	RE::TESForm* GetOverlayMetaForm(RE::StaticFunctionTag*, std::string a_id, std::string a_key, RE::TESForm* a_default)
+	{
+		if (auto ovl = Registry::GetOverlay(a_id))
+			return ovl->GetMetaForm(a_key, a_default);
+		else
+			return a_default;
+	}
 }
 
 bool Papyrus::RegisterFunctions(RE::BSScript::IVirtualMachine* vm) {
@@ -53,6 +80,10 @@ bool Papyrus::RegisterFunctions(RE::BSScript::IVirtualMachine* vm) {
 	vm->RegisterFunction("GetMatchingOverlays", PapyrusClass, GetMatchingOverlays);
 
 	vm->RegisterFunction("GetAllMatchingOverlays", PapyrusClass, GetAllMatchingOverlays);
+
+	vm->RegisterFunction("GetOverlayMetaString", PapyrusClass, GetOverlayMetaString);
+	vm->RegisterFunction("GetOverlayMetaNumeric", PapyrusClass, GetOverlayMetaNumeric);
+	vm->RegisterFunction("GetOverlayMetaForm", PapyrusClass, GetOverlayMetaForm);
 
 
     return true;

@@ -98,6 +98,8 @@ namespace util
 #include <ClibUtil/rng.hpp>
 #include <ClibUtil/simpleINI.hpp>
 
+#include <any>
+
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
 

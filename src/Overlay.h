@@ -6,6 +6,47 @@
 #define OM_PATH "data\\textures\\om"
 #define BLANK_PATH "actors\\character\\overlays\\default.dds"
 
+namespace
+{
+	constexpr std::string_view Delimeter = "|"; 
+
+	template <typename T>
+	inline std::optional<T> Parse(std::string a_str)
+	{
+		return std::nullopt;
+	}
+
+	template <>
+	inline std::optional<RE::TESForm*> Parse(std::string a_str)
+	{
+		auto pos = a_str.find("|");
+		auto token = a_str.substr(0, pos);
+
+		if (!token.empty()) {
+			try {
+				auto formId = std::stoi(token, 0, 16);
+				auto plugin = a_str.substr(pos + 1, a_str.size());
+
+				if (auto form = RE::TESDataHandler::GetSingleton()->LookupForm(formId, plugin)) {
+					return std::optional(form);
+				}
+			} catch (...) {}
+		}
+
+		return std::nullopt;
+	}
+
+	template <>
+	inline std::optional<float> Parse(std::string a_str)
+	{
+		try {
+			return std::stof(a_str);
+		} catch (...) {
+			return std::nullopt;
+		}
+	}
+}
+
 namespace OM {
     enum OverlayArea {
         Invalid,
@@ -18,19 +59,41 @@ namespace OM {
     const std::vector<OverlayArea> Areas{ Body, Hands, Feet, Face };
 
     enum MetaType {
-        Form,
-        Int,
-        String,
-        Float
+		None,
+		String,
+		Form,
+        Numeric
     };
 
     struct MetaField {
-        MetaType type;
-        std::string strValue;
-        int intValue;
-        float fltValue;
-        std::string rawFormValue;
-        RE::TESForm* formValue;
+		MetaField() = default;
+        MetaField(std::string a_val) 
+		{
+			if (auto pForm = Parse<RE::TESForm*>(a_val)) {
+				type = MetaType::Form;
+				form = pForm.value();
+			} else if (auto pNum = Parse<float>(a_val)) {
+				type = MetaType::Numeric;
+				numeric = pNum.value();
+			} else {
+				type = MetaType::String;
+				str = a_val;
+			}
+        }
+		MetaField(float a_val) 
+		{
+			type = MetaType::Numeric;
+			numeric = a_val;
+		}
+		MetaField(RE::TESForm* a_val)
+		{
+			type = MetaType::Form;
+			form = a_val;
+		}
+		MetaType type = MetaType::None;
+        std::string str;
+		RE::TESForm* form;
+		float numeric;
     };
 
     struct Overlay {
@@ -46,11 +109,36 @@ namespace OM {
 		std::string event;
 		std::string author;
 		std::string bump;
+		std::string domain;
         bool skipFileCheck;
 
-        std::unordered_map<std::string, MetaField> meta;
-        std::unordered_map<std::string, MetaField> requirements;
-        std::unordered_map<std::string, MetaField> conflicts;
+        std::map<std::string, MetaField> meta;
+		std::vector<std::pair<std::string, MetaField>> requirements;
+		std::vector<std::pair<std::string, MetaField>> conflicts;
+
+		// LATER: maybe refactor
+		inline std::string GetMetaStr(std::string a_key, std::string a_default) {
+			if (meta.count(a_key) && meta[a_key].type == MetaType::String)
+				return meta[a_key].str;
+			else
+				return a_default;
+		}
+
+		inline float GetMetaNum(std::string a_key, float a_default)
+		{
+			if (meta.count(a_key) && meta[a_key].type == MetaType::Numeric)
+				return meta[a_key].numeric;
+			else
+				return a_default;
+		}
+
+		inline RE::TESForm* GetMetaForm(std::string a_key, RE::TESForm* a_default)
+		{
+			if (meta.count(a_key) && meta[a_key].type == MetaType::Form)
+				return meta[a_key].form;
+			else
+				return a_default;
+		}
     };
 
     struct OverlayST : Overlay {};
@@ -91,6 +179,7 @@ namespace OM {
 
     };
 
+    const std::unordered_set<std::string> primaryKeys{ "name", "section", "texture", "area", "in_bsa", "event", "credit", "domain" };
     inline void from_json(const json& j, OverlayST& p) {
         j.at("name").get_to(p.name);
         j.at("section").get_to(p.set);
@@ -98,14 +187,52 @@ namespace OM {
 		p.base = j.at("texture");
 		p.path = std::format("{}\\{}", ST_PATH, p.base);
         
-        std::string rawArea = j["area"];
+        std::string rawArea = j.value("area", "");
         p.area = magic_enum::enum_cast<OverlayArea>(rawArea, magic_enum::case_insensitive).value_or(OverlayArea::Invalid);
 
         p.skipFileCheck = j.value("in_bsa", false);
 		p.event = j.value("event", "");
 		p.author = j.value("credit", "");
+		p.domain = j.value("domain", "");
 
-        // TODO: add requirement/conflict parsing
-		// TODO: convert other keys to meta fields
+		std::string require = j.value("requires", "");
+        if (!require.empty()) {
+			std::pair req = { require, MetaField(1) };
+			p.requirements.emplace_back(req);
+		}
+
+		std::string excludedBy = j.value("excluded_by", "");
+		if (!excludedBy.empty()) {
+			std::pair excl = { excludedBy, MetaField(1) };
+			p.conflicts.emplace_back(excl);
+		}
+		
+		std::map<std::string, std::string> plugins;
+		std::vector<std::pair<std::string, int>> formIds;
+
+        for (auto& [key, val] : j.items()) {
+            if (!primaryKeys.contains(key)) {
+				if (key.ends_with("_plugin")) {
+					plugins[key.substr(key.size() - 7)] = val;
+				} else if (key.ends_with("_formid")) {
+					std::pair pair = { key.substr(key.size() - 7), val };
+					formIds.emplace_back(pair);
+				} else {
+					p.meta[key] = MetaField((std::string) val);
+				}
+            }
+		}
+
+		auto handler = RE::TESDataHandler::GetSingleton();
+		for (auto& [key, formId] : formIds) {
+			if (key == "")
+				continue;
+
+			if (plugins.count(key)) {
+				if (auto form = handler->LookupForm(formId, plugins[key])) {
+					p.meta[key] = MetaField(form);
+				}
+			}
+		}
     }
 }

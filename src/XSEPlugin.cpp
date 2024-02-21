@@ -47,9 +47,6 @@ void InitializeMessaging()
 			});
 			
 			NiOverride::Init();
-
-		} else if (message->type == SKSE::MessagingInterface::kDataLoaded) {
-			Registry::Init();
 		}
 	})) {
 		stl::report_and_fail("Unable to register message listener.");

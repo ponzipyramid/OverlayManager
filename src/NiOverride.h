@@ -115,6 +115,14 @@ namespace OM {
             // use actual racemenu if game version > 640
 
             HMODULE baseAddress = GetModuleHandleA("skee64.dll");
+
+            if (baseAddress) {
+				logger::info("initializing NiOverride API");
+            } else {
+				logger::info("failed to initialize NiOverride API");
+				return;
+            }
+
             char* func_start; 
 
             std::vector addresses = _addresses640;
