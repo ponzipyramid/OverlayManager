@@ -44,7 +44,7 @@ namespace {
 }
 
 bool Papyrus::RegisterFunctions(RE::BSScript::IVirtualMachine* vm) {
-	vm->RegisterFunction("SyncContext", PapyrusClass, SyncContext);
+	vm->RegisterFunction("SyncContext", PapyrusClass, SyncContext, true);
 	vm->RegisterFunction("GetExternalOverlaySlots", PapyrusClass, GetExternalOverlaySlots);
 	
 	vm->RegisterFunction("GetAvailableSlot", PapyrusClass, GetAvailableSlot);

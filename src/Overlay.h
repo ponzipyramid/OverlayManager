@@ -1,5 +1,5 @@
 #pragma once
-
+#include "Serialization.hpp"
 
 #define PREFIX_PATH "data\\textures"
 #define ST_PATH "actors\\character\\slavetats"
@@ -62,8 +62,35 @@ namespace OM {
         float alpha;
         int glow;
         int gloss;
-        std::string_view bump;
         int slot = -1;
+
+        
+		OverlayData() = default;
+		OverlayData(int a_color, float a_alpha, int a_glow, int a_gloss, int a_slot)
+		{
+			color = a_color;
+			alpha = a_alpha;
+			glow = a_glow;
+			gloss = a_gloss;
+			slot = a_slot;
+        }
+		OverlayData(SKSE::SerializationInterface* a_intfc)
+		{
+			color = Serialization::Read<int>(a_intfc);
+			alpha = Serialization::Read<float>(a_intfc);
+			glow = Serialization::Read<int>(a_intfc);
+			gloss = Serialization::Read<int>(a_intfc);
+			slot = Serialization::Read<int>(a_intfc);
+		}
+		inline void Serialize(SKSE::SerializationInterface* a_intfc)
+		{
+			Serialization::Write<int>(a_intfc, color);
+			Serialization::Write<float>(a_intfc, alpha);
+			Serialization::Write<int>(a_intfc, glow);
+			Serialization::Write<int>(a_intfc, gloss);
+			Serialization::Write<int>(a_intfc, slot);
+		}
+
     };
 
     inline void from_json(const json& j, OverlayST& p) {

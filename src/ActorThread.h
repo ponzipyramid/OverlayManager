@@ -34,8 +34,10 @@ namespace OM {
 		void Serialize(SKSE::SerializationInterface* a_intfc);
 		bool IsValid();
 		inline RE::Actor* GetActor() { return _actor; } 
+
+        inline std::size_t GetNumActive() { return _active.size(); }
 	private:
-        RE::Actor* _actor;
+        RE::Actor* _actor = nullptr;
         bool _female;
         std::unordered_map<std::string, OverlayData> _active;
         std::unordered_map<std::string, std::unordered_set<std::string_view>> _contexts;

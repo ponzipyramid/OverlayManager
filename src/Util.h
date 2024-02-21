@@ -25,13 +25,11 @@ namespace OM {
 				auto tat = JArray::getObj(a_list, i);
 				
                 auto id = std::format("{}\\{}", ST_PATH, JMap::getStr(tat, "texture"));
-				logger::info("Util::PopulateVector: {}", id);
 				OverlayData od{
 					JMap::getInt(tat, "color"),
 					1 - JMap::getFlt(tat, "invertedAlpha"),
 					JMap::getInt(tat, "glow"),
 					JMap::getInt(tat, "gloss"),
-					JMap::getStr(tat, "bump"),
 					JMap::getInt(tat, "slot")
 				};
 
@@ -201,10 +199,8 @@ namespace OM {
 			for (auto ovl : ovls) {
 				if (!ovl)
 					return;
-				logger::info("checking ovl: {}", ovl->path);
 				auto obj = CreateObject(ovl);
 				if (DoesOverlayMatch(a_template, obj, false, true)) {
-					logger::info("adding ovl: {}", ovl->path);
 					JArray::addObj(a_matches, obj);
 				}
 			}

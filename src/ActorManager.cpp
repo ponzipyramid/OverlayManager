@@ -2,6 +2,7 @@
 #include "Util.h"
 #include "JCApi.h"
 #include "Registry.h"
+#include "Serialization.hpp"
 
 using namespace OM;
 
@@ -48,9 +49,9 @@ void ActorManager::SyncContext(RE::Actor* a_target, std::string a_context, int a
 
         for (int i = 0; i < count; i++) {
 			auto [id, data] = contextOvls[i];
-            auto [color, alpha, glow, gloss, bump, slot] = data;
+            auto [color, alpha, glow, gloss, slot] = data;
 
-            // TODO: fix bump
+            // TODO: add bump
 			switch (thread->AddOverlay(a_context, id, color, alpha, glow, gloss, "", "", slot)) {
 			case AddResult::Failed:
 				logger::info("failed to add");
@@ -73,10 +74,12 @@ ActorThread* ActorManager::GetActorThread(RE::Actor* a_target, bool a_create)
 {
 	auto formId = a_target->GetFormID();
 	if (!_actorThreads.count(formId)) {
-		if (a_create)
+		if (a_create) {
+			logger::info("creating actor thread {}", a_target->GetFormID());
 			_actorThreads.insert({ formId, ActorThread{ a_target } });
-		else
+		} else {
 			return nullptr;
+		}
 	}
 	return &_actorThreads.find(formId)->second;
 }
@@ -88,29 +91,36 @@ void ActorManager::Revert()
 
 void ActorManager::Load(SKSE::SerializationInterface* a_intfc)
 {
-	std::size_t num_actors;
-	a_intfc->ReadRecordData(&num_actors, sizeof(num_actors));
+	auto count = Serialization::Read<std::size_t>(a_intfc);
 
-	for (; num_actors > 0; --num_actors) {
+	logger::info("deserializing {} threads", count);
+	for (; count > 0; --count) {
 		auto thread = ActorThread(a_intfc);
 		
 		if (thread.IsValid()) {
-			_actorThreads[thread.GetActor()->GetFormID()] = thread;
+			auto formId = thread.GetActor()->GetFormID();
+
+			_actorThreads.insert({ formId, thread });
+			logger::info("fetched {} active", GetActorThread(thread.GetActor())->GetNumActive());
+		} else {
+			logger::info("failed to deserialize thread");
 		}
 	}
 }
 
 void ActorManager::Save(SKSE::SerializationInterface* a_intfc)
 {
-	std::size_t count;
+	logger::info("ActorManager::Save");
+
+	std::size_t count = 0;
 	for (auto& [_, thread] : _actorThreads) {
 		if (thread.HasActiveOverlays()) {
 			count++;
 		}
 	}
 
-	a_intfc->WriteRecordData(&count, sizeof(count));
-
+	logger::info("serializing {} threads", count);
+	Serialization::Write<std::size_t>(a_intfc, count);
 	for (auto& [_, thread] : _actorThreads) {
 		if (thread.HasActiveOverlays()) {
 			thread.Serialize(a_intfc);
