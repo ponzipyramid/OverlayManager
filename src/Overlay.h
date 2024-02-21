@@ -77,19 +77,42 @@ namespace OM {
 				numeric = pNum.value();
 			} else {
 				type = MetaType::String;
-				str = a_val;
 			}
+			str = a_val;
         }
 		MetaField(float a_val) 
 		{
 			type = MetaType::Numeric;
 			numeric = a_val;
+			str = std::to_string(a_val);
 		}
 		MetaField(RE::TESForm* a_val)
 		{
 			type = MetaType::Form;
 			form = a_val;
+			str = std::format("{}|{}", a_val->GetFormID(), a_val->GetFile()->GetFilename());
 		}
+
+		bool operator==(MetaField const& a_ovl)
+		{
+			if (type == MetaType::None || a_ovl.type == MetaType::None)
+				return false;
+			
+			if (type != a_ovl.type)
+				return false;
+
+			switch (type) {
+			case MetaType::Form:
+				return form == a_ovl.form;
+			case MetaType::Numeric:
+				return numeric == a_ovl.numeric;
+			case MetaType::String:
+				return str == a_ovl.str;
+			default:
+				return false;
+			}
+		}
+
 		MetaType type = MetaType::None;
         std::string str;
 		RE::TESForm* form;
@@ -113,18 +136,17 @@ namespace OM {
         bool skipFileCheck;
 
         std::map<std::string, MetaField> meta;
-		std::vector<std::pair<std::string, MetaField>> requirements;
-		std::vector<std::pair<std::string, MetaField>> conflicts;
 
 		// LATER: maybe refactor
-		inline std::string GetMetaStr(std::string a_key, std::string a_default) {
-			if (meta.count(a_key) && meta[a_key].type == MetaType::String)
+		inline std::string GetMetaStr(std::string a_key, std::string a_default = "")
+		{
+			if (meta.count(a_key))
 				return meta[a_key].str;
 			else
 				return a_default;
 		}
 
-		inline float GetMetaNum(std::string a_key, float a_default)
+		inline float GetMetaNum(std::string a_key, float a_default = 0.f)
 		{
 			if (meta.count(a_key) && meta[a_key].type == MetaType::Numeric)
 				return meta[a_key].numeric;
@@ -132,7 +154,7 @@ namespace OM {
 				return a_default;
 		}
 
-		inline RE::TESForm* GetMetaForm(std::string a_key, RE::TESForm* a_default)
+		inline RE::TESForm* GetMetaForm(std::string a_key, RE::TESForm* a_default = nullptr)
 		{
 			if (meta.count(a_key) && meta[a_key].type == MetaType::Form)
 				return meta[a_key].form;
@@ -194,18 +216,6 @@ namespace OM {
 		p.event = j.value("event", "");
 		p.author = j.value("credit", "");
 		p.domain = j.value("domain", "");
-
-		std::string require = j.value("requires", "");
-        if (!require.empty()) {
-			std::pair req = { require, MetaField(1) };
-			p.requirements.emplace_back(req);
-		}
-
-		std::string excludedBy = j.value("excluded_by", "");
-		if (!excludedBy.empty()) {
-			std::pair excl = { excludedBy, MetaField(1) };
-			p.conflicts.emplace_back(excl);
-		}
 		
 		std::map<std::string, std::string> plugins;
 		std::vector<std::pair<std::string, int>> formIds;
@@ -230,7 +240,7 @@ namespace OM {
 
 			if (plugins.count(key)) {
 				if (auto form = handler->LookupForm(formId, plugins[key])) {
-					p.meta[key] = MetaField(form);
+					p.meta[key + "_form"] = MetaField(form);
 				}
 			}
 		}

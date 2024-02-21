@@ -32,9 +32,9 @@ namespace {
 		return Util::GetMatchingOverlays(a_template, a_list, a_matches);
 	}
 
-	void GetAllMatchingOverlays(RE::StaticFunctionTag*, std::string a_context, int a_template, int a_matches) 
+	void GetAllMatchingOverlays(RE::StaticFunctionTag*, std::string a_context, int a_template, int a_matches, int a_applied) 
 	{
-		return Util::GetAllMatchingOverlays(a_context, a_template, a_matches);
+		return Util::GetAllMatchingOverlays(a_context, a_template, a_matches, a_applied);
 	}
 
 	std::string GetEvent(RE::StaticFunctionTag*, std::string a_id)
@@ -84,7 +84,6 @@ bool Papyrus::RegisterFunctions(RE::BSScript::IVirtualMachine* vm) {
 	vm->RegisterFunction("GetOverlayMetaString", PapyrusClass, GetOverlayMetaString);
 	vm->RegisterFunction("GetOverlayMetaNumeric", PapyrusClass, GetOverlayMetaNumeric);
 	vm->RegisterFunction("GetOverlayMetaForm", PapyrusClass, GetOverlayMetaForm);
-
 
     return true;
 }

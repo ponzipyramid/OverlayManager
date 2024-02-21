@@ -90,7 +90,7 @@ namespace OM {
 		}
 
 
-		inline bool DoesOverlayMatch(int a_template, int a_ovl, bool a_runtime = false, bool a_extra = false)
+		inline bool DoesOverlayMatch(int a_template, int a_ovl, bool a_runtime = false, int a_applied = 0)
 		{
 
 			if (DiffFieldsStr(a_template, a_ovl, "name"))
@@ -111,8 +111,32 @@ namespace OM {
 			if (DiffFieldsInt(a_template, a_ovl, "domain"))
 				return false;
 
-			if (a_extra) {
-				// TODO: implement a_extra checks (conflicts, requirements incl forms)
+			if (a_applied) {
+				auto req = JMap::getStr(a_ovl, "requires");
+				auto excl = JMap::getStr(a_ovl, "excluded_by");
+
+				auto reqsMet = req == "";
+				auto conflict = false;
+
+				int count = JArray::count(a_applied);
+				for (int i = 0; i < count; i++) {
+					auto tat = JArray::getObj(a_applied, i);
+					auto texture = JMap::getStr(tat, "texture");
+					auto id = std::format("{}\\{}", ST_PATH, texture);
+
+					if (auto ovl = Registry::GetOverlay(id)) {
+						if (ovl->meta[req].str == "1")
+							reqsMet = true;
+						if (ovl->meta[excl].str == "1") {
+							conflict = true;
+							break;
+						}
+					}
+				}
+
+				if (!reqsMet || conflict) {
+					return false;
+				}
 			}
 
 			if (a_runtime) {
@@ -178,11 +202,14 @@ namespace OM {
 			JMap::setStr(obj, "texture", a_ovl->base);
 			JMap::setStr(obj, "area", magic_enum::enum_name(a_ovl->area));
 			JMap::setStr(obj, "domain", a_ovl->domain);
+			JMap::setStr(obj, "requires", a_ovl->domain);
+			JMap::setStr(obj, "excluded_by", std::string{ a_ovl->GetMetaStr("excluded_by") });
+			JMap::setStr(obj, "requires", std::string{ a_ovl->GetMetaStr("requires") });
 
 			return obj;
 		}
 
-		inline void GetAllMatchingOverlays(std::string a_context, int a_template, int a_matches)
+		inline void GetAllMatchingOverlays(std::string a_context, int a_template, int a_matches, int a_applied)
 		{
 			logger::info("GetAllMatchingOverlays");
 			
@@ -190,8 +217,9 @@ namespace OM {
 			for (auto ovl : ovls) {
 				if (!ovl)
 					return;
+
 				auto obj = CreateObject(ovl);
-				if (DoesOverlayMatch(a_template, obj, false, true)) {
+				if (DoesOverlayMatch(a_template, obj, false, a_applied)) {
 					JArray::addObj(a_matches, obj);
 				}
 			}

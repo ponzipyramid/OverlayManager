@@ -47,6 +47,8 @@ void InitializeMessaging()
 			});
 			
 			NiOverride::Init();
+		} else if (message->type == SKSE::MessagingInterface::kDataLoaded) {
+			Registry::Read();		
 		}
 	})) {
 		stl::report_and_fail("Unable to register message listener.");
@@ -79,7 +81,6 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_s
 	InitializeSerialization();
 	InitializePapyrus();
 
-	Registry::Read();
 	Hooks::Install();
 
 	return true;
