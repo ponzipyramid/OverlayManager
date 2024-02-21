@@ -35,9 +35,32 @@ namespace OM {
                 default:
                     return 0;
             }
-        }
+		}
 
-        static std::string GetPath(RE::Actor* a_target, bool a_female, OverlayArea a_area, int a_slot) {        
+		static inline void CheckAndAddOverlays(RE::Actor* a_actor)
+		{
+				return _AddOverlays(&_base, a_actor);
+		}
+
+		static inline void ApplyNodeOverrides(RE::Actor* a_actor)
+		{
+				return _ApplyNodeOverrides(&_base, a_actor);
+		}
+
+		static inline bool HasOverrideInSlot(RE::Actor* a_target, bool a_female, OverlayArea a_area, int a_slot)
+		{
+				auto node = GetNode(a_area, a_slot);
+
+                if (HasNodeOverride(a_target, a_female, node, 9, 0)) {
+					return false;
+                }
+
+                auto path = GetNodeOverrideString(a_target, a_female, node, 9, 0);
+
+				return path == "" || path == BLANK_PATH;
+		}
+
+        static inline std::string GetPath(RE::Actor* a_target, bool a_female, OverlayArea a_area, int a_slot) {        
             auto nodeName = GetNode(a_area, a_slot);
             return GetNodeOverrideString(a_target, a_female, nodeName, 9, 0);
         }
@@ -88,7 +111,7 @@ namespace OM {
         }
 
         static inline void Init() {
-            // TODO: check version at runtime and swap addresses
+            // LATER: check version at runtime and swap addresses
             // use actual racemenu if game version > 640
 
             HMODULE baseAddress = GetModuleHandleA("skee64.dll");
@@ -138,15 +161,6 @@ namespace OM {
             func_start = (char*)baseAddress + addresses[13];
 			_AddOverlays = (AddOverlaysFunc)func_start;
         }
-
-        static inline void CheckAndAddOverlays(RE::Actor* a_actor) {
-			return _AddOverlays(&_base, a_actor);
-        }
-
-        static inline void ApplyNodeOverrides(RE::Actor* a_actor)
-		{
-			return _ApplyNodeOverrides(&_base, a_actor);
-		}
     private:
         static inline std::string GetNode(OverlayArea a_area, int a_slot) {
             return std::format("{} [ovl{}]", magic_enum::enum_name(a_area), a_slot);

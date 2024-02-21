@@ -105,4 +105,6 @@ using json = nlohmann::json;
 
 #include "SimpleMath.h"
 
+namespace fs = std::filesystem;
+
 using uint = uint32_t;

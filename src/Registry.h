@@ -1,9 +1,6 @@
 #pragma once
 #include "Overlay.h"
 
-namespace fs = std::filesystem;
-using json = nlohmann::json;
-
 namespace OM {
     class Registry {
     public:
@@ -49,7 +46,7 @@ namespace OM {
 			}
 
 
-            // TODO: ingest all OM JSONs
+            // LATER: ingest all OM JSONs
 
             for (auto& ovl : _overlays) {
                 _overlaysById[ovl.path] = &ovl;

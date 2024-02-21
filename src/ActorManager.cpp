@@ -51,8 +51,7 @@ void ActorManager::SyncContext(RE::Actor* a_target, std::string a_context, int a
 			auto [id, data] = contextOvls[i];
             auto [color, alpha, glow, gloss, slot] = data;
 
-            // TODO: add bump
-			switch (thread->AddOverlay(a_context, id, color, alpha, glow, gloss, "", "", slot)) {
+			switch (thread->AddOverlay(a_context, id, color, alpha, glow, gloss, "", slot)) {
 			case AddResult::Failed:
 				logger::info("failed to add");
 				JArray::eraseIndex(a_list, seen[id]);

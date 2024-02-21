@@ -44,11 +44,6 @@ namespace OM {
 			return magic_enum::enum_cast<OverlayArea>(a_area, magic_enum::case_insensitive).value_or(OverlayArea::Invalid);
 		}
 
-		inline bool IsSlotOpen(std::string_view a_path) {
-			// TODO: validate this works
-			return a_path == "" || a_path == BLANK_PATH || a_path == "actors\\character\\overlays\\default.dds";
-		}
-
 		inline bool WildcardMatch(std::string_view a_template, std::string_view a_str)
 		{
 			if (a_template == "ANY" || a_template == "")
@@ -136,8 +131,6 @@ namespace OM {
 
 		inline std::vector<int> GetMatchingOverlays(int a_template, int a_list, int a_matches)
 		{
-			// TODO: if bool = true check domain, exclude, required, required plugin
-
 			//logger::info("GetMatchingOverlays {} {} {}", a_template, a_list, a_matches);
 
 			std::vector<int> matches;
@@ -147,7 +140,6 @@ namespace OM {
 				auto tat = JArray::getObj(a_list, i);
 
 				//logger::info("checking tat {} {}", tat, JMap::getStr(tat, "name"));
-
 
 				if (tat && DoesOverlayMatch(a_template, tat, false)) {
 					//logger::info("tat matches");
@@ -207,18 +199,3 @@ namespace OM {
 		}
     }
 }
-
-/*
-
-if (overlay_path != "") && (StringUtil.Substring(overlay_path, 0, prefix_length) != prefix) && (overlay_path != suffix) && (StringUtil.SubString(overlay_path, StringUtil.GetLength(overlay_path) - suffix_length - 1) != ("\\" + suffix))
-    Debug.Trace("SlaveTats: Found external overlay: " + overlay_path)
-    JArray.addInt(matches, i)
-else
-    overlay_path = NiOverride.GetNodeOverrideString(target, isFemale, nodeName, 9, 6)
-    if (overlay_path != "") && (StringUtil.Substring(overlay_path, 0, prefix_length) != prefix) && (overlay_path != suffix) && (StringUtil.SubString(overlay_path, StringUtil.GetLength(overlay_path) - suffix_length - 1) != ("\\" + suffix))
-        Debug.Trace("SlaveTats: Found external non-file overlay: " + overlay_path)
-        JArray.addInt(matches, i)
-    endif
-endif
-
-*/

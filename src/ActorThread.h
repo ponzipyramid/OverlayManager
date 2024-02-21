@@ -1,6 +1,7 @@
 #pragma once
 #include "Overlay.h"
 #include "NiOverride.h"
+#include "Util.h"
 
 namespace OM {
     enum AddResult {
@@ -22,7 +23,7 @@ namespace OM {
         }
 		ActorThread(SKSE::SerializationInterface* a_intfc);
 
-        AddResult AddOverlay(std::string a_context, std::string a_id, int a_color, float a_alpha, int a_glow, int a_gloss, std::string a_bump, std::string a_replaceId = "", int a_slot = -1);        
+        AddResult AddOverlay(std::string a_context, std::string a_id, int a_color, float a_alpha, int a_glow, int a_gloss, std::string a_replaceId = "", int a_slot = -1);        
         bool RemoveOverlay(std::string a_context, std::string a_id);
 
         inline std::unordered_set<std::string_view> GetOverlaysByContext(std::string a_context) { return _contexts[a_context]; }
@@ -34,13 +35,16 @@ namespace OM {
 		void Serialize(SKSE::SerializationInterface* a_intfc);
 		bool IsValid();
 		inline RE::Actor* GetActor() { return _actor; } 
-
+        inline std::string GetSlotId(OverlayArea a_area, int a_slot) { return NiOverride::GetPath(_actor, _female, a_area, a_slot); }
+		inline bool IsSlotOpen(OverlayArea a_area, int a_slot);
         inline std::size_t GetNumActive() { return _active.size(); }
 	private:
         RE::Actor* _actor = nullptr;
         bool _female;
+
         std::unordered_map<std::string, OverlayData> _active;
         std::unordered_map<std::string, std::unordered_set<std::string_view>> _contexts;
+
 		bool _initialized = false;
     };
 }
