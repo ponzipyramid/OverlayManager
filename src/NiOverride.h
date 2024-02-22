@@ -73,7 +73,7 @@ namespace OM {
 
             AddNodeOverrideString(a_target, a_female, nodeName, 9, 0, std::string(a_path), true);
 
-            if (a_bump != "")
+			if (a_bump != "")
                 AddNodeOverrideString(a_target, a_female, nodeName, 9, 1, std::string(a_bump), true);
 
             AddNodeOverrideInt(a_target, a_female, nodeName, 7, -1, a_color, true);
@@ -88,7 +88,9 @@ namespace OM {
                 AddNodeOverrideFloat(a_target, a_female, nodeName, 2, -1, 0.0, true);
                 AddNodeOverrideFloat(a_target, a_female, nodeName, 3, -1, 0.0, true);
             }
-        }
+
+			NiOverride::ApplyNodeOverrides(a_target);
+		}
 
         static void ClearOverlay(RE::Actor* a_target, bool a_female, OverlayArea a_area, int a_slot) {
             auto nodeName = GetNode(a_area, a_slot);
@@ -204,15 +206,15 @@ namespace OM {
         }
 
         static inline void AddNodeOverrideInt(RE::TESObjectREFR* a_ref, bool a_female, std::string a_node, int a_key, int a_index, int a_value, bool a_persist) {
-            return _AddNodeOverrideInt(&_base, a_ref, a_female, a_node, a_key, a_index, a_value, a_persist);
+			return _AddNodeOverrideInt(&_base, a_ref, a_female, a_node, a_key, a_index, a_value, a_persist);
         }
 
         static inline void AddNodeOverrideFloat(RE::TESObjectREFR* a_ref, bool a_female, std::string a_node, int a_key, int a_index, float a_value, bool a_persist) {
-            return _AddNodeOverrideFloat(&_base, a_ref, a_female, a_node, a_key, a_index, a_value, a_persist);
+			return _AddNodeOverrideFloat(&_base, a_ref, a_female, a_node, a_key, a_index, a_value, a_persist);
         }
 
         static inline void AddNodeOverrideString(RE::TESObjectREFR* a_ref, bool a_female, std::string a_node, int a_key, int a_index, std::string a_value, bool a_persist) {
-            return _AddNodeOverrideString(&_base, a_ref, a_female, a_node, a_key, a_index, a_value.c_str(), a_persist);
+			return _AddNodeOverrideString(&_base, a_ref, a_female, a_node, a_key, a_index, a_value.c_str(), a_persist);
         }
 
         static inline bool HasNodeOverride(RE::TESObjectREFR* a_ref, bool a_female, std::string a_node, int a_key, int a_index) {

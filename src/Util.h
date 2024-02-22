@@ -34,8 +34,6 @@ namespace OM {
 				};
 
                 overlays.push_back({ id, od });
-
-				logger::info("PopulateVector: {} - {}", JMap::getStr(tat, "section"), JMap::getStr(tat, "name"));
             }
 
             return overlays;

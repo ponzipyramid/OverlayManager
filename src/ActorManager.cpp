@@ -52,11 +52,13 @@ void ActorManager::SyncContext(RE::Actor* a_target, std::string a_context, int a
 				JMap::setInt(arr[i], "slot", thread->GetOverlayData(id)->slot);
 				break;
 			}
+
+			if (i < (count - 1)) {
+				std::this_thread::sleep_for(200ms);
+			}
         }
 
 		//thread->Print();
-
-        NiOverride::ApplyNodeOverrides(a_target);
     }
 }
 

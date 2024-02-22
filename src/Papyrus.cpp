@@ -9,16 +9,14 @@ using namespace OM;
 namespace {
     constexpr std::string_view PapyrusClass = "OverlayManager";
 
-    void SyncContext(RE::StaticFunctionTag*, RE::Actor* a_target, std::string a_context, int a_list, int a_added, int a_removed) 
-    {
-		logger::info("SyncContext Start");
+    void SyncContext(RE::StaticFunctionTag*, RE::Actor* a_target, std::string a_context, int a_list, int a_added, int a_removed)
+	{
 
-		auto start = high_resolution_clock::now();
-		ActorManager::SyncContext(a_target, a_context, a_list, a_added, a_removed);
-		auto stop = high_resolution_clock::now();
+		std::thread t1{[=] {
+			ActorManager::SyncContext(a_target, a_context, a_list, a_added, a_removed);
+		}};
 
-		auto duration = duration_cast<microseconds>(stop - start);
-		logger::info("SyncContext End: {}", ((double) duration.count()) / 1000.0);
+		t1.detach();
 	}
    
     std::vector<int> GetExternalOverlaySlots(RE::StaticFunctionTag*, RE::Actor* a_target, std::string a_context, std::string a_area)
