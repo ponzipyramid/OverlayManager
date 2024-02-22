@@ -1,6 +1,7 @@
 #pragma once
-#include "Overlay.h"
+
 #include <thread>
+#include "Overlay.h"
 
 namespace OM {
     typedef void (*AddNodeOverrideIntFunc)(RE::StaticFunctionTag*, RE::TESObjectREFR*, bool, std::string, int, int, int, bool);
@@ -52,12 +53,12 @@ namespace OM {
 				auto node = GetNode(a_area, a_slot);
 
                 if (HasNodeOverride(a_target, a_female, node, 9, 0)) {
-					return false;
+					return true;
                 }
 
                 auto path = GetNodeOverrideString(a_target, a_female, node, 9, 0);
 
-				return path == "" || path == BLANK_PATH;
+				return path != "" && path != BLANK_PATH;
 		}
 
         static inline std::string GetPath(RE::Actor* a_target, bool a_female, OverlayArea a_area, int a_slot) {        

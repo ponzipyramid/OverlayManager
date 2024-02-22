@@ -34,6 +34,8 @@ namespace OM {
 				};
 
                 overlays.push_back({ id, od });
+
+				logger::info("PopulateVector: {} - {}", JMap::getStr(tat, "section"), JMap::getStr(tat, "name"));
             }
 
             return overlays;
@@ -64,28 +66,28 @@ namespace OM {
 			return true;
 		}
 
-		inline bool DiffFieldsStr(int a_template, int a_obj, std::string_view a_key)
+		inline bool DiffFieldsStr(int a_template, int a_obj, std::string_view a_key, bool a_log = false)
 		{
 			auto a1 = JMap::getStr(a_template, a_key);
 			auto a2 = JMap::getStr(a_obj, a_key);
 
 			auto result = !WildcardMatch(a1, a2);
 			
-			/*if (result)
-				logger::info("DiffFieldsStr ({}): {} = {}", a_key, a1, a2, result);*/
+			if (a_log)
+				logger::info("DiffFieldsStr ({}): {} = {}", a_key, a1, a2, result);
 			return result;
 		}
 
-		inline bool DiffFieldsInt(int a_template, int a_obj, std::string_view a_key)
+		inline bool DiffFieldsInt(int a_template, int a_obj, std::string_view a_key, bool a_log = false)
 		{
 			auto a1 = JMap::getInt(a_template, a_key, -1);
 			auto a2 = JMap::getInt(a_obj, a_key);
 
 			auto result = (a1 != -1) && a1 != a2;
 			
-			/*if (result)
+			if (a_log)
 				logger::info("DiffFieldsInt ({}): {} = {}", a_key, a1, a2, result);
-			*/
+			
 			return result;
 		}
 
@@ -158,7 +160,10 @@ namespace OM {
 
 		inline std::vector<int> GetMatchingOverlays(int a_template, int a_list, int a_matches)
 		{
-			//logger::info("GetMatchingOverlays {} {} {}", a_template, a_list, a_matches);
+			/*auto area = JMap::getStr(a_template, "area", "none");
+			auto slot = JMap::getInt(a_template, "slot", -1);
+
+			logger::info("GetMatchingOverlays {} {}", area, slot);*/
 
 			std::vector<int> matches;
 
@@ -169,8 +174,8 @@ namespace OM {
 				//logger::info("checking tat {} {}", tat, JMap::getStr(tat, "name"));
 
 				if (tat && DoesOverlayMatch(a_template, tat, false)) {
-					//logger::info("tat matches");
-					matches.push_back(tat);
+					//logger::info("tat matches {} - {}", JMap::getStr(tat, "section"), JMap::getStr(tat, "name"));
+					matches.push_back(i);
 					if (a_matches)
 						JArray::addObj(a_matches, tat);
 				} else {

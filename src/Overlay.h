@@ -49,21 +49,21 @@ namespace
 
 namespace OM {
     enum OverlayArea {
-        Invalid,
         Body,
         Hands,
         Feet,
         Face,
-    };
+		Invalid
+	};
 
     const std::vector<OverlayArea> Areas{ Body, Hands, Feet, Face };
 
     enum MetaType {
-		None,
 		String,
 		Form,
-        Numeric
-    };
+        Numeric,
+		None
+	};
 
     struct MetaField {
 		MetaField() = default;

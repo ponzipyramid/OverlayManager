@@ -10,15 +10,7 @@ void ActorManager::SyncContext(RE::Actor* a_target, std::string a_context, int a
     if (!a_target) return;
     if (!JC::Api::IsInit()) return;
 
-    logger::info("Syncing now");
-
     if (auto thread = GetActorThread(a_target)) {
-		logger::info("Syncing for real");
-		// get overlays in context
-        // diff with list 
-        // add new overlays
-        // clear removed overlays
-        // populate lists
 
         auto count = JArray::count(a_list);
         
@@ -28,20 +20,18 @@ void ActorManager::SyncContext(RE::Actor* a_target, std::string a_context, int a
         }
 
         auto contextOvls = Util::PopulateVector(a_list);
+
         auto currIds = thread->GetOverlaysByContext(a_context);
-
-        logger::info("contextOvls: {}", contextOvls.size());
-		logger::info("currIds for {}: {}", a_context, currIds.size());
-
 
         std::unordered_map<std::string_view, int> seen;
 		for (int i = 0; i < contextOvls.size(); i++) {
 			seen[contextOvls[i].first] = i;
         }
 
+		//thread->Print();
+
         for (auto id : currIds) {
 			if (!seen.contains(id)) {
-				logger::info("{} not in list", id);
 				thread->RemoveOverlay(a_context, std::string(id));
 				JArray::addObj(a_removed, seen[id]);
             }
@@ -53,8 +43,7 @@ void ActorManager::SyncContext(RE::Actor* a_target, std::string a_context, int a
 
 			switch (thread->AddOverlay(a_context, id, color, alpha, glow, gloss, "", slot)) {
 			case AddResult::Failed:
-				logger::info("failed to add");
-				JArray::eraseIndex(a_list, seen[id]);
+				JArray::eraseIndex(a_list, i);
 				break;
 			case AddResult::Added:
 				JArray::addObj(a_added, seen[id]);
@@ -64,6 +53,8 @@ void ActorManager::SyncContext(RE::Actor* a_target, std::string a_context, int a
 				break;
 			}
         }
+
+		//thread->Print();
 
         NiOverride::ApplyNodeOverrides(a_target);
     }

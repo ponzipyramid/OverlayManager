@@ -1,7 +1,9 @@
+#include <chrono>
 #include "Papyrus.h"
 #include "ActorManager.h"
 #include "Util.h"
 
+using namespace std::chrono;
 using namespace OM;
 
 namespace {
@@ -9,8 +11,15 @@ namespace {
 
     void SyncContext(RE::StaticFunctionTag*, RE::Actor* a_target, std::string a_context, int a_list, int a_added, int a_removed) 
     {
+		logger::info("SyncContext Start");
+
+		auto start = high_resolution_clock::now();
 		ActorManager::SyncContext(a_target, a_context, a_list, a_added, a_removed);
-    }
+		auto stop = high_resolution_clock::now();
+
+		auto duration = duration_cast<microseconds>(stop - start);
+		logger::info("SyncContext End: {}", ((double) duration.count()) / 1000.0);
+	}
    
     std::vector<int> GetExternalOverlaySlots(RE::StaticFunctionTag*, RE::Actor* a_target, std::string a_context, std::string a_area)
 	{

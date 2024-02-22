@@ -31,14 +31,14 @@ int ActorThread::GetAvailableSlot(OverlayArea a_area, int a_applied)
 
 AddResult ActorThread::AddOverlay(std::string a_context, std::string a_id, int a_color, float a_alpha, int a_glow, int a_gloss, std::string a_replaceId, int a_slot)
 {
-    AddResult result = AddResult::Failed;
+	logger::info("AddOverlay: {}", a_id);
+	
+	AddResult result = AddResult::Failed;
     
     if (!Registry::GetOverlay(a_id)) {
 		logger::info("could not find overlay id {}", a_id);
 		return result;
     }
-
-    logger::info("AddOverlay");
 
     if (auto ovl = Registry::GetOverlay(a_id)) {
         auto& [color, alpha, glow, gloss, slot] = _active[a_id];
@@ -49,23 +49,30 @@ AddResult ActorThread::AddOverlay(std::string a_context, std::string a_id, int a
 		gloss = a_gloss;
 
         if (slot >= 0 && GetSlotId(ovl->area, slot) == ovl->path) {  // try to use existing
+			//logger::info("using existing slot {}", slot);
 			result = AddResult::Modified;
 		} else if (_active.count(a_replaceId) && GetSlotId(ovl->area, _active[a_replaceId].slot) == a_replaceId) { // try to replace existing
 			slot = _active[a_replaceId].slot;
+			//logger::info("replacing existing tat {}", slot);
 			_active.erase(a_replaceId);
+			_contexts[a_context].erase(a_replaceId);
+			// TODO: remove from context as well
 			result = AddResult::Replaced;
-		} else if (a_slot >= -1 && IsSlotOpen(ovl->area, a_slot)) { // try to use forced slot
+		} else if (a_slot > -1 && IsSlotOpen(ovl->area, a_slot)) { // try to use forced slot
 			slot = a_slot;
+			//logger::info("using forced slot {}", slot);
 			result = AddResult::Added;
 		}
 		
 		if (slot < 0) { // try getting an available slot
 			slot = GetAvailableSlot(ovl->area);
+			//logger::info("finding available {}", slot);
 			result = AddResult::Added;
 		} 
 
         if (slot < 0) {
 			_active.erase(a_id);
+			logger::info("failed due to no slots available {}", slot);
 			return AddResult::Failed;
         }
 
@@ -79,8 +86,18 @@ AddResult ActorThread::AddOverlay(std::string a_context, std::string a_id, int a
 bool ActorThread::RemoveOverlay(std::string a_context, std::string a_id)
 {
 	
-    if (!_active.count(a_id))
+	logger::info("RemoveOverlay: {}", a_id);
+	
+	if (!_active.count(a_id)) {
+		logger::info("overlay is not active on actor");
 		return false;
+	}
+		
+
+	if (!_contexts[a_context].contains(a_id)) {
+		logger::info("context does not contain overlay");
+		return false;
+	}
 
     auto ovl = Registry::GetOverlay(a_id);
     auto data = _active[a_id];
@@ -222,4 +239,36 @@ void ActorThread::Serialize(SKSE::SerializationInterface* a_intfc)
 bool ActorThread::IsValid()
 {
 	return _actor != nullptr;
+}
+
+std::string ActorThread::Print() {
+	std::string status;
+	
+	std::vector<std::vector<std::string>> ordered;
+	ordered.resize(4);
+	for (int i = 0; i < ordered.size(); i++) {
+		ordered[i].resize(NiOverride::GetNumOverlays(magic_enum::enum_cast<OverlayArea>(i).value_or(OverlayArea::Invalid)));
+	}
+
+	for (auto& [id, data] : _active) {
+		auto ovl = Registry::GetOverlay(id);
+		ordered[(int)ovl->area][data.slot] = id;
+	}
+
+	for (int i = 0; i < ordered.size(); i++) {
+		for (int j = 0; j < ordered[i].size(); j++) {
+			auto id = ordered[i][j];
+
+			auto area = magic_enum::enum_cast<OverlayArea>(i).value_or(OverlayArea::Invalid);
+			auto areaName = magic_enum::enum_name(area);
+
+			if (_active.count(id)) {
+				status += std::format("{} Slot: {} = {} \n", areaName, j, id);
+			} else {
+				status += std::format("{} Slot: {} = {} \n", areaName, j, id);
+			}
+		}
+	}
+
+	return status;
 }
