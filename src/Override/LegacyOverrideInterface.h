@@ -33,6 +33,8 @@ namespace OM
 			static std::latch latch(1);
 
 			if (!initialized.exchange(true)) {
+				// yes, this is terrible but there isn't a better option for 1.5/1.6.640 support
+
 				HMODULE baseAddress = GetModuleHandleA("skee64.dll");
 
 				if (baseAddress) {
@@ -40,7 +42,13 @@ namespace OM
 					char* func_start;
 
 					// TODO: swap address lists depending on version
+
 					auto addresses = instance._addresses640;
+					
+					const auto ver = REL::Module::get().version();
+					if (ver.major() == 1 && ver.minor() == 5 && ver.patch() == 97) {
+						addresses = instance._addresses97;
+					}
 
 					func_start = (char*)baseAddress + addresses[0];
 					instance._GetNumBodyOverlays = (GetNumOverlaysFunc)func_start;
@@ -185,7 +193,7 @@ namespace OM
 		ApplyNodeOverridesFunc _ApplyNodeOverrides;
 		AddOverlaysFunc _AddOverlays;
 
-		std::vector<int> _addresses97{};
+		std::vector<int> _addresses97{}; // TODO: fill in 1.5 addresses
 		std::vector<int> _addresses640{
 			0xA5EF0,
 			0xA5F00,

@@ -104,12 +104,12 @@ namespace OM {
 				if (auto overrideInt = SKEE::GetOverrideInterface(iMap)) {
 					auto ver = overrideInt->GetVersion();
 
-					logger::info("got override interface {}", ver);
+					logger::info("got override interface v{}", ver);
 
                     if (ver >= SKEE::IOverrideInterface::kCurrentPluginVersion) {
 						useLegacy = false;
 					} else {
-						logger::info("interface not up to date {}", ver);
+						logger::info("interface not up to date");
 					}
 				} else {
 			        logger::warn("could not get override interface");
@@ -119,11 +119,12 @@ namespace OM {
             }
 
             if (useLegacy) {
+				logger::info("using legacy interface");
 				_interface = LegacyOverrideInterface::GetSingleton();
 			} else {
+				logger::info("using modern interface");
 				_interface = ModernOverrideInterface::GetSingleton();
             }
-
         }
 
         static inline std::string GetNode(OverlayArea a_area, int a_slot)

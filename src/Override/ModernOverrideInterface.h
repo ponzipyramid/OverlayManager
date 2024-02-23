@@ -79,6 +79,9 @@ namespace OM
 				if (auto iMap = SKEE::GetInterfaceMap()) {
 					instance._overrideInterface = SKEE::GetOverrideInterface(iMap);
 					instance._overlayInterface = SKEE::GetOverlayInterface(iMap);
+
+					logger::info("initialized overrides = {}", instance._overrideInterface != nullptr);
+					logger::info("initialized overlays = {}", instance._overlayInterface != nullptr);
 				}
 
 				latch.count_down();
@@ -92,22 +95,22 @@ namespace OM
 		inline int GetNumBodyOverlays() override
 		{
 			// TODO: read from INI file directly
-			return 0;
+			return 12;
 		}
 
 		inline int GetNumHandOverlays() override
 		{
-			return 0;
+			return 6;
 		}
 
 		inline int GetNumFeetOverlays() override
 		{
-			return 0;
+			return 6;
 		}
 
 		inline int GetNumFaceOverlays() override
 		{
-			return 0;
+			return 6;
 		}
 
 		inline int GetNodeOverrideInt(RE::TESObjectREFR* a_ref, bool a_female, std::string a_node, int a_key, int a_index) override
@@ -144,7 +147,6 @@ namespace OM
 		{
 			SetVariant var(a_value);
 			_overrideInterface->AddNodeOverride(a_ref, a_female, a_node.c_str(), (uint16_t) a_key, (uint8_t) a_index, var);
-
 		}
 
 		inline void AddNodeOverrideFloat(RE::TESObjectREFR* a_ref, bool a_female, std::string a_node, int a_key, int a_index, float a_value, bool) override
@@ -180,7 +182,6 @@ namespace OM
 		}
 
 	private:
-
 		SKEE::IOverrideInterface* _overrideInterface;
 		SKEE::IOverlayInterface* _overlayInterface;
 	};
