@@ -92,27 +92,6 @@ namespace OM
 			return &instance;
 		}
 
-		inline int GetNumBodyOverlays() override
-		{
-			// TODO: read from INI file directly
-			return 12;
-		}
-
-		inline int GetNumHandOverlays() override
-		{
-			return 6;
-		}
-
-		inline int GetNumFeetOverlays() override
-		{
-			return 6;
-		}
-
-		inline int GetNumFaceOverlays() override
-		{
-			return 6;
-		}
-
 		inline int GetNodeOverrideInt(RE::TESObjectREFR* a_ref, bool a_female, std::string a_node, int a_key, int a_index) override
 		{
 			GetVariant var;

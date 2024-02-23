@@ -9,8 +9,6 @@ namespace OM
 	typedef void (*AddNodeOverrideFloatFunc)(RE::StaticFunctionTag*, RE::TESObjectREFR*, bool, std::string, int, int, float, bool);
 	typedef void (*AddNodeOverrideStringFunc)(RE::StaticFunctionTag*, RE::TESObjectREFR*, bool, std::string, int, int, const char*, bool);
 
-	typedef int (*GetNumOverlaysFunc)(RE::StaticFunctionTag*);
-
 	typedef int (*GetNodeOverrideIntFunc)(RE::StaticFunctionTag*, RE::TESObjectREFR*, bool, std::string, int, int);
 	typedef float (*GetNodeOverrideFloatFunc)(RE::StaticFunctionTag*, RE::TESObjectREFR*, bool, std::string, int, int);
 	typedef RE::BSFixedString (*GetNodeOverrideStringFunc)(RE::StaticFunctionTag*, RE::TESObjectREFR*, bool, std::string, int, int);
@@ -51,45 +49,33 @@ namespace OM
 					}
 
 					func_start = (char*)baseAddress + addresses[0];
-					instance._GetNumBodyOverlays = (GetNumOverlaysFunc)func_start;
-
-					func_start = (char*)baseAddress + addresses[1];
-					instance._GetNumHandOverlays = (GetNumOverlaysFunc)func_start;
-
-					func_start = (char*)baseAddress + addresses[2];
-					instance._GetNumFeetOverlays = (GetNumOverlaysFunc)func_start;
-
-					func_start = (char*)baseAddress + addresses[3];
-					instance._GetNumFaceOverlays = (GetNumOverlaysFunc)func_start;
-
-					func_start = (char*)baseAddress + addresses[4];
 					instance._GetNodeOverrideInt = (GetNodeOverrideIntFunc)func_start;
 
-					func_start = (char*)baseAddress + addresses[5];
+					func_start = (char*)baseAddress + addresses[1];
 					instance._GetNodeOverrideFloat = (GetNodeOverrideFloatFunc)func_start;
 
-					func_start = (char*)baseAddress + addresses[6];
+					func_start = (char*)baseAddress + addresses[2];
 					instance._GetNodeOverrideString = (GetNodeOverrideStringFunc)func_start;
 
-					func_start = (char*)baseAddress + addresses[7];
+					func_start = (char*)baseAddress + addresses[3];
 					instance._AddNodeOverrideInt = (AddNodeOverrideIntFunc)func_start;
 
-					func_start = (char*)baseAddress + addresses[8];
+					func_start = (char*)baseAddress + addresses[4];
 					instance._AddNodeOverrideFloat = (AddNodeOverrideFloatFunc)func_start;
 
-					func_start = (char*)baseAddress + addresses[9];
+					func_start = (char*)baseAddress + addresses[5];
 					instance._AddNodeOverrideString = (AddNodeOverrideStringFunc)func_start;
 
-					func_start = (char*)baseAddress + addresses[10];
+					func_start = (char*)baseAddress + addresses[6];
 					instance._HasNodeOverride = (HasNodeOverrideFunc)func_start;
 
-					func_start = (char*)baseAddress + addresses[11];
+					func_start = (char*)baseAddress + addresses[7];
 					instance._RemoveNodeOverride = (RemoveNodeOverrideFunc)func_start;
 
-					func_start = (char*)baseAddress + addresses[12];
+					func_start = (char*)baseAddress + addresses[8];
 					instance._ApplyNodeOverrides = (ApplyNodeOverridesFunc)func_start;
 
-					func_start = (char*)baseAddress + addresses[13];
+					func_start = (char*)baseAddress + addresses[9];
 					instance._AddOverlays = (AddOverlaysFunc)func_start;
 				} else {
 					logger::error("failed to find SKEE base address");
@@ -101,26 +87,6 @@ namespace OM
 			latch.wait();
 
 			return &instance;
-		}
-
-		inline int GetNumBodyOverlays() override
-		{
-			return _GetNumBodyOverlays(&_base);
-		}
-
-		inline int GetNumHandOverlays() override
-		{
-			return _GetNumHandOverlays(&_base);
-		}
-
-		inline int GetNumFeetOverlays() override
-		{
-			return _GetNumFeetOverlays(&_base);
-		}
-
-		inline int GetNumFaceOverlays() override
-		{
-			return _GetNumFaceOverlays(&_base);
 		}
 
 		inline int GetNodeOverrideInt(RE::TESObjectREFR* a_ref, bool a_female, std::string a_node, int a_key, int a_index) override
@@ -173,11 +139,6 @@ namespace OM
 			return _ApplyNodeOverrides(&_base, a_actor);
 		}
 
-		GetNumOverlaysFunc _GetNumBodyOverlays;
-		GetNumOverlaysFunc _GetNumHandOverlays;
-		GetNumOverlaysFunc _GetNumFeetOverlays;
-		GetNumOverlaysFunc _GetNumFaceOverlays;
-
 		GetNodeOverrideIntFunc _GetNodeOverrideInt;
 		GetNodeOverrideFloatFunc _GetNodeOverrideFloat;
 		GetNodeOverrideStringFunc _GetNodeOverrideString;
@@ -195,10 +156,6 @@ namespace OM
 
 		std::vector<int> _addresses97{}; // TODO: fill in 1.5 addresses
 		std::vector<int> _addresses640{
-			0xA5EF0,
-			0xA5F00,
-			0xA5F10,
-			0xA5F20,
 			0xCA230,
 			0xCA160,
 			0xCA3C0,

@@ -6,19 +6,21 @@
 #include "Override/LegacyOverrideInterface.h"
 #include "Override/ModernOverrideInterface.h"
 
+#define SKEE_PATH "Data/SKSE/Plugins/skee64.ini"
+
 namespace OM {
     class NiOverride {
     public:
         static int GetNumOverlays(OverlayArea a_area) {
             switch (a_area) {
                 case Body:
-				    return _interface->GetNumBodyOverlays();
+				    return _numBodyOvls;
                 case Hands:
-					return _interface->GetNumHandOverlays();
+					return _numHandsOvls;
                 case Feet:
-					return _interface->GetNumFeetOverlays();
+					return _numFeetOvls;
                 case Face:
-					return _interface->GetNumFaceOverlays();
+					return _numFaceOvls;
                 default:
                     return 0;
             }
@@ -94,9 +96,6 @@ namespace OM {
         }
 
         static inline void Init() {
-            // LATER: check version at runtime and swap addresses
-            // use actual racemenu if game version > 640
-
             bool useLegacy = true;
 
             if (auto iMap = SKEE::GetInterfaceMap()) {
@@ -125,6 +124,20 @@ namespace OM {
 				logger::info("using modern interface");
 				_interface = ModernOverrideInterface::GetSingleton();
             }
+
+			CSimpleIniA config;
+			config.SetUnicode();
+
+			SI_Error rc = config.LoadFile(SKEE_PATH);
+
+			if (rc >= 0) {
+				clib_util::ini::get_value(config, _numBodyOvls, "Overlays/Body", "iNumOverlays", "");
+				clib_util::ini::get_value(config, _numHandsOvls, "Overlays/Hands", "iNumOverlays", "");
+				clib_util::ini::get_value(config, _numFeetOvls, "Overlays/Feet", "iNumOverlays", "");
+				clib_util::ini::get_value(config, _numFaceOvls, "Overlays/Face", "iNumOverlays", "");
+			}
+
+			logger::info("# Overlay: {} {} {} {}", _numBodyOvls, _numHandsOvls, _numFeetOvls, _numFaceOvls);
         }
 
         static inline std::string GetNode(OverlayArea a_area, int a_slot)
@@ -134,6 +147,9 @@ namespace OM {
 
     private:
 		static inline OverrideInterface* _interface;
-  
+		static inline int _numBodyOvls = 0;
+		static inline int _numFaceOvls = 0;
+		static inline int _numHandsOvls = 0;
+		static inline int _numFeetOvls = 0;
     };
 }

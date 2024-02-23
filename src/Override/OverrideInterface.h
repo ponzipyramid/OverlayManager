@@ -5,10 +5,6 @@ namespace OM
 	class OverrideInterface
 	{
 	public:
-		virtual int GetNumBodyOverlays() = 0;
-		virtual int GetNumHandOverlays() = 0;
-		virtual int GetNumFeetOverlays() = 0;
-		virtual int GetNumFaceOverlays() = 0;
 		virtual int GetNodeOverrideInt(RE::TESObjectREFR*, bool, std::string, int, int) = 0;
 		virtual float GetNodeOverrideFloat(RE::TESObjectREFR*, bool, std::string, int, int) = 0;
 		virtual std::string GetNodeOverrideString(RE::TESObjectREFR*, bool, std::string, int, int) = 0;
