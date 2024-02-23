@@ -45,9 +45,8 @@ void InitializeMessaging()
 						JC::Api::Init(root);
 				}
 			});
-			
-			NiOverride::Init();
 		} else if (message->type == SKSE::MessagingInterface::kDataLoaded) {
+			NiOverride::Init();
 			Registry::Read();		
 		}
 	})) {
