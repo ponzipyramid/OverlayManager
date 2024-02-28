@@ -41,7 +41,7 @@ namespace OM
 
 					// TODO: swap address lists depending on version
 
-					auto addresses = instance._addresses640;
+					auto& addresses = instance._addresses640;
 					
 					const auto ver = REL::Module::get().version();
 					if (ver.major() == 1 && ver.minor() == 5 && ver.patch() == 97) {
@@ -154,7 +154,18 @@ namespace OM
 		ApplyNodeOverridesFunc _ApplyNodeOverrides;
 		AddOverlaysFunc _AddOverlays;
 
-		std::vector<int> _addresses97{}; // TODO: fill in 1.5 addresses
+		std::vector<int> _addresses97{
+			0xBE160,
+			0xBE090,
+			0xBE2F0,
+			0xBD9E0,
+			0xBD780,
+			0x9F040,
+			0x99D80,
+			0x9A1D0,
+			0x99D30,
+			0x99760
+		};
 		std::vector<int> _addresses640{
 			0xCA230,
 			0xCA160,

@@ -49,24 +49,23 @@ AddResult ActorThread::AddOverlay(std::string a_context, std::string a_id, int a
 		gloss = a_gloss;
 
         if (slot >= 0 && GetSlotId(ovl->area, slot) == ovl->path) {  // try to use existing
-			//logger::info("using existing slot {}", slot);
+			logger::info("using existing slot {}", slot);
 			result = AddResult::Modified;
 		} else if (_active.count(a_replaceId) && GetSlotId(ovl->area, _active[a_replaceId].slot) == a_replaceId) { // try to replace existing
 			slot = _active[a_replaceId].slot;
-			//logger::info("replacing existing tat {}", slot);
+			logger::info("replacing existing tat {}", slot);
 			_active.erase(a_replaceId);
 			_contexts[a_context].erase(a_replaceId);
-			// TODO: remove from context as well
 			result = AddResult::Replaced;
 		} else if (a_slot > -1 && IsSlotOpen(ovl->area, a_slot)) { // try to use forced slot
 			slot = a_slot;
-			//logger::info("using forced slot {}", slot);
+			logger::info("using forced slot {}", slot);
 			result = AddResult::Added;
 		}
 		
 		if (slot < 0) { // try getting an available slot
 			slot = GetAvailableSlot(ovl->area);
-			//logger::info("finding available {}", slot);
+			logger::info("finding available {}", slot);
 			result = AddResult::Added;
 		} 
 
@@ -106,6 +105,7 @@ bool ActorThread::RemoveOverlay(std::string a_context, std::string a_id)
 	auto path = GetSlotId(ovl->area, data.slot);
 
     if (path == a_id) {
+		logger::info("actually clearing overlay");
 		NiOverride::ClearOverlay(_actor, _female, ovl->area, data.slot);
     }
 
