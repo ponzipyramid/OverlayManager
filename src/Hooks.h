@@ -9,5 +9,8 @@ namespace OM
 	private:
 		static inline void UpdateCharacter(RE::Actor* a_actor, float a_delta);
 		inline static REL::Relocation<decltype(UpdateCharacter)> _UpdateCharacter;
+
+		static inline void UpdatePlayer(RE::Actor* a_actor, float a_delta);
+		inline static REL::Relocation<decltype(UpdatePlayer)> _UpdatePlayer;
 	};
 }

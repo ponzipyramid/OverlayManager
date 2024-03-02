@@ -86,6 +86,18 @@ namespace OM {
 			numeric = a_val;
 			str = std::to_string(a_val);
 		}
+		MetaField(int a_val)
+		{
+			type = MetaType::Numeric;
+			numeric = (float) a_val;
+			str = std::to_string(a_val);
+		}
+		MetaField(bool a_val)
+		{
+			type = MetaType::Numeric;
+			numeric = (float) a_val;
+			str = std::to_string(a_val);
+		}
 		MetaField(RE::TESForm* a_val)
 		{
 			type = MetaType::Form;
@@ -121,7 +133,17 @@ namespace OM {
 
     struct Overlay {
         inline bool IsValid() {
-			return path != "" && (skipFileCheck || fs::exists(std::format("{}\\{}", PREFIX_PATH, path))) && set != "" && name != "" && area != OverlayArea::Invalid;
+			bool pathValid = path != "";
+			bool fileExists = skipFileCheck || fs::exists(std::format("{}\\{}", PREFIX_PATH, path));
+			bool setValid = set != ""; 
+			bool nameValid = name != "";
+			bool areaValid = area != OverlayArea::Invalid;
+			bool valid = pathValid && fileExists && setValid && nameValid && areaValid;
+			
+			if (!valid)
+				logger::error("overlay invalid: path = {} file = {} set = {} name = {} area = {}", pathValid, fileExists, setValid, nameValid, areaValid);
+
+			return valid;
         }
 
         std::string path;
@@ -228,7 +250,27 @@ namespace OM {
 					std::pair pair = { key.substr(key.size() - 7), val };
 					formIds.emplace_back(pair);
 				} else {
-					p.meta[key] = MetaField((std::string) val);
+					try {
+						switch (val.type())
+						{
+							case json::value_t::string:
+								p.meta[key] = MetaField(val.get<std::string>());
+								break;
+							case json::value_t::number_float:
+								p.meta[key] = MetaField(val.get<float>());
+								break;
+							case json::value_t::number_integer:
+							case json::value_t::number_unsigned:
+								p.meta[key] = MetaField(val.get<int>());
+								break;
+							case json::value_t::boolean:
+								p.meta[key] = MetaField(val.get<bool>());
+								break;
+						}
+					}
+					catch (std::exception& e) {
+						logger::error("exception: {}", e.what());
+					}
 				}
             }
 		}

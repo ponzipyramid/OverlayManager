@@ -21,6 +21,7 @@ namespace OM::JC {
     inline int32_t(*JFormDB_getObj)(void*, RE::TESForm*, RE::BSFixedString) = nullptr;
     inline int32_t(*JArray_count)(void*, int32_t a_obj) = nullptr;
     inline int32_t(*JArray_getObj)(void*, int32_t a_obj, int32_t a_index) = nullptr;
+	inline RE::BSFixedString (*JArray_getStr)(void*, int32_t a_obj, int32_t a_index, RE::BSFixedString a_default) = nullptr;
     inline RE::BSFixedString(*JMap_getStr)(void*, int32_t a_obj, RE::BSFixedString a_key, RE::BSFixedString a_default) = nullptr;
     inline int32_t(*JMap_getInt)(void*, int32_t a_obj, RE::BSFixedString a_key, int32_t a_default) = nullptr;
 	inline float (*JMap_getFlt)(void*, int32_t a_obj, RE::BSFixedString a_key, float a_default) = nullptr;
@@ -31,6 +32,10 @@ namespace OM::JC {
 	inline void (*JMap_setInt)(void*, int32_t a_obj, RE::BSFixedString a_key, int a_value) = nullptr;
 	inline void (*JMap_setFlt)(void*, int32_t a_obj, RE::BSFixedString a_key, float a_value) = nullptr;
 	inline void (*JMap_setStr)(void*, int32_t a_obj, RE::BSFixedString a_key, RE::BSFixedString a_value) = nullptr;
+	inline int (*JMap_count)(void*, int32_t a_obj) = nullptr;
+	inline int (*JMap_allKeys)(void*, int32_t a_obj) = nullptr;
+	inline bool (*JMap_hasKey)(void*, int32_t a_obj, RE::BSFixedString a_key) = nullptr;
+
 
     class Api {
     public:
@@ -46,7 +51,8 @@ namespace OM::JC {
 
             obtain_func(refl, "getObj", "JFormDB", JFormDB_getObj);
             obtain_func(refl, "count", "JArray", JArray_count);
-            obtain_func(refl, "getObj", "JArray", JArray_getObj);
+			obtain_func(refl, "getObj", "JArray", JArray_getObj);
+			obtain_func(refl, "getStr", "JArray", JArray_getStr);
             obtain_func(refl, "getStr", "JMap", JMap_getStr);
             obtain_func(refl, "getInt", "JMap", JMap_getInt);
 			obtain_func(refl, "getFlt", "JMap", JMap_getFlt);
@@ -58,6 +64,10 @@ namespace OM::JC {
             obtain_func(refl, "setFlt", "JMap", JMap_setFlt);
 			obtain_func(refl, "SetInt", "JMap", JMap_setInt);
 			obtain_func(refl, "setStr", "JMap", JMap_setStr);
+			
+            obtain_func(refl, "count", "JMap", JMap_count);
+			obtain_func(refl, "allKeys", "JMap", JMap_allKeys);
+			obtain_func(refl, "hasKey", "JMap", JMap_hasKey);
 
             default_domain = root->query_interface<jc::domain_interface>()->get_default_domain();
 
@@ -98,6 +108,12 @@ namespace OM::JC {
         static inline int32_t getObj(Handle a_obj, int32_t a_index) {
 			return JArray_getObj ? JArray_getObj(default_domain, a_obj, a_index) : 0;
         }
+
+		static inline std::string getStr(Handle a_obj, int32_t a_index, RE::BSFixedString a_default = "")
+		{
+			auto val = JArray_getStr ? JArray_getStr(default_domain, a_obj, a_index, a_default) : "";
+			return std::string{ val };
+		}
 
         static inline int32_t clear(Handle a_obj)
 		{
@@ -141,6 +157,22 @@ namespace OM::JC {
 		{
 			if (JMap_getFlt) 
                 JMap_setFlt(default_domain, a_obj, a_key, a_value);
+		}
+
+        static inline int count(Handle a_obj)
+		{
+			return JMap_count ? JMap_count(default_domain, a_obj) : 0;
+		}
+
+		static inline int allKeys(Handle a_obj)
+		{
+			return JMap_allKeys ? JMap_allKeys(default_domain, a_obj) : 0;
+		}
+
+		static inline bool hasKey(Handle a_obj, RE::BSFixedString a_key)
+		{
+			return JMap_hasKey ? JMap_hasKey(default_domain, a_obj, a_key) : 0;
+
 		}
     };
 }

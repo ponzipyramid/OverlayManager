@@ -18,25 +18,31 @@ namespace OM {
 
                 std::ifstream f(entry.path());
                 json data = json::parse(f);
+				try {
+					auto tats = data.template get<std::vector<OverlayST>>();
 
-                auto tats = data.template get<std::vector<OverlayST>>();
-                
-                _overlays.reserve(tats.size());
+					_overlays.reserve(tats.size());
 
-                std::set<std::string_view> seen;
-                for (auto& tat : tats) {
-                    if (!tat.IsValid()) {
-                        logger::info("skipping {}/{}: invalid data", tat.set, tat.name);
-                        continue;
-                    }
-                    if (seen.contains(tat.path)) {
-                        logger::info("skipping {}/{}: duplicate path", tat.set, tat.name);
-                        continue;
-                    }
+					std::set<std::string_view> seen;
+					for (auto& tat : tats) {
+						if (!tat.IsValid()) {
+							logger::info("skipping {}/{}: invalid data", tat.set, tat.name);
+							continue;
+						}
+						if (seen.contains(tat.path)) {
+							logger::info("skipping {}/{}: duplicate path", tat.set, tat.name);
+							continue;
+						}
 
-                    _overlays.push_back(tat);
-                    seen.insert(tat.path);
+						_overlays.push_back(tat);
+						seen.insert(tat.path);
+					}
+				} catch (std::exception& e) {
+					logger::error("failed to parse {} due to {}", path.string(), e.what());
+				} catch (...) {
+					logger::error("failed to parse {}", path.string());
                 }
+                
             }
 
             logger::info("Num STs found: {}", _overlays.size());

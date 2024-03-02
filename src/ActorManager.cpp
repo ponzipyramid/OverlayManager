@@ -10,6 +10,7 @@ void ActorManager::SyncContext(RE::Actor* a_target, std::string a_context, int a
     if (!a_target) return;
     if (!JC::Api::IsInit()) return;
 
+
     if (auto thread = GetActorThread(a_target)) {
 
         auto count = JArray::count(a_list);
@@ -19,11 +20,11 @@ void ActorManager::SyncContext(RE::Actor* a_target, std::string a_context, int a
 			arr.emplace_back(JArray::getObj(a_list, i));
         }
 
-        auto contextOvls = Util::PopulateVector(a_list);
+		auto contextOvls = Util::PopulateVector(a_list);
 
-        auto currIds = thread->GetOverlaysByContext(a_context);
+		auto currIds = thread->GetOverlaysByContext(a_context);
 
-        std::unordered_map<std::string_view, int> seen;
+		std::unordered_map<std::string_view, int> seen;
 		for (int i = 0; i < contextOvls.size(); i++) {
 			seen[contextOvls[i].first] = i;
         }

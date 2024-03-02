@@ -39,8 +39,6 @@ namespace OM
 					logger::info("initializing NiOverride API");
 					char* func_start;
 
-					// TODO: swap address lists depending on version
-
 					auto& addresses = instance._addresses640;
 					
 					const auto ver = REL::Module::get().version();

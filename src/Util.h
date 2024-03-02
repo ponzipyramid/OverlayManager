@@ -64,53 +64,13 @@ namespace OM {
 			return true;
 		}
 
-		inline bool DiffFieldsStr(int a_template, int a_obj, std::string_view a_key, bool a_log = false)
-		{
-			auto a1 = JMap::getStr(a_template, a_key);
-			auto a2 = JMap::getStr(a_obj, a_key);
-
-			auto result = !WildcardMatch(a1, a2);
-			
-			if (a_log)
-				logger::info("DiffFieldsStr ({}): {} = {}", a_key, a1, a2, result);
-			return result;
-		}
-
-		inline bool DiffFieldsInt(int a_template, int a_obj, std::string_view a_key, bool a_log = false)
-		{
-			auto a1 = JMap::getInt(a_template, a_key, -1);
-			auto a2 = JMap::getInt(a_obj, a_key);
-
-			auto result = (a1 != -1) && a1 != a2;
-			
-			if (a_log)
-				logger::info("DiffFieldsInt ({}): {} = {}", a_key, a1, a2, result);
-			
-			return result;
-		}
-
-
 		inline bool DoesOverlayMatch(int a_template, int a_ovl, bool a_runtime = false, int a_applied = 0)
 		{
+			auto section = JMap::getStr(a_ovl, "section");
+			auto name = JMap::getStr(a_ovl, "name");
+			auto fullName = std::format("{}/{}", section, name);
 
-			if (DiffFieldsStr(a_template, a_ovl, "name"))
-				return false;
-
-			if (DiffFieldsStr(a_template, a_ovl, "section"))
-				return false;
-
-			if (DiffFieldsStr(a_template, a_ovl, "texture"))
-				return false;
-
-			if (DiffFieldsStr(a_template, a_ovl, "area"))
-				return false;
-
-			if (DiffFieldsInt(a_template, a_ovl, "slot"))
-				return false;
-
-			if (DiffFieldsInt(a_template, a_ovl, "domain"))
-				return false;
-
+		
 			if (a_applied) {
 				auto req = JMap::getStr(a_ovl, "requires");
 				auto excl = JMap::getStr(a_ovl, "excluded_by");
@@ -135,21 +95,39 @@ namespace OM {
 				}
 
 				if (!reqsMet || conflict) {
+					logger::info("excluding {} due to {} {}", fullName, reqsMet, conflict);
 					return false;
 				}
 			}
 
-			if (a_runtime) {
-				if (DiffFieldsInt(a_template, a_ovl, "color")) {
-					return false;
-				}
+			int tkeys = JMap::allKeys(a_template);
 
-				if (DiffFieldsInt(a_template, a_ovl, "glow")) {
-					return false;
-				}
+			for (int i = JMap::count(a_template) - 1; i >= 0; i--) {
+				std::string tkey = JArray::getStr(tkeys, i);
 
-				if (DiffFieldsInt(a_template, a_ovl, "gloss")) {
-					return false;
+				logger::info("testing {}", tkey);
+
+				if (a_runtime || (tkey != "color" && tkey != "glow" && tkey != "gloss")) {
+					auto sval1 = JMap::getStr(a_template, tkey);
+					Lowercase(sval1);
+
+					if (sval1 != "any" || !JMap::hasKey(a_ovl, tkey)) {
+
+						auto ival1 = JMap::getInt(a_template, tkey);
+						auto fval1 = JMap::getFlt(a_template, tkey);
+
+						auto ival2 = JMap::getInt(a_ovl, tkey);
+						auto fval2 = JMap::getFlt(a_ovl, tkey);
+						auto sval2 = JMap::getStr(a_ovl, tkey);
+						Lowercase(sval2);
+
+						logger::info("{} = {}, {} = {}, {} = {}", ival1, ival2, fval1, fval2, sval1, sval2);
+
+						if ((ival1 != ival2) || (fval1 != fval2) || (!WildcardMatch(sval1, sval2))) {
+							logger::info("excluding {} due to {}", fullName, tkey);
+							return false;
+						}
+					}
 				}
 			}
 
@@ -188,18 +166,6 @@ namespace OM {
 		{
 			auto obj = JMap::object();
 
-			/*
-			name
-			section
-			texture
-			area
-			excluded_by
-			requires
-			requires_plugin
-			requires_formid
-			domain
-			*/
-
 			JMap::setStr(obj, "name", a_ovl->name);
 			JMap::setStr(obj, "section", a_ovl->set);
 			JMap::setStr(obj, "texture", a_ovl->base);
@@ -208,6 +174,10 @@ namespace OM {
 			JMap::setStr(obj, "requires", a_ovl->domain);
 			JMap::setStr(obj, "excluded_by", std::string{ a_ovl->GetMetaStr("excluded_by") });
 			JMap::setStr(obj, "requires", std::string{ a_ovl->GetMetaStr("requires") });
+
+			for (auto& [name, data] : a_ovl->meta) {
+				JMap::setStr(obj, name, data.str);
+			}
 
 			return obj;
 		}

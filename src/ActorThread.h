@@ -16,10 +16,6 @@ namespace OM {
         ActorThread(RE::Actor* a_actor) { 
             _actor = a_actor; 
             _female = _actor->GetActorBase()->GetSex() == 1;
-
-            if (a_actor->GetFormID() != 14) {
-				NiOverride::CheckAndAddOverlays(a_actor);
-			}
         }
 		ActorThread(SKSE::SerializationInterface* a_intfc);
 

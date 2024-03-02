@@ -40,7 +40,8 @@ AddResult ActorThread::AddOverlay(std::string a_context, std::string a_id, int a
 		return result;
     }
 
-    if (auto ovl = Registry::GetOverlay(a_id)) {
+	NiOverride::CheckAndAddOverlays(_actor);
+	if (auto ovl = Registry::GetOverlay(a_id)) {
         auto& [color, alpha, glow, gloss, slot] = _active[a_id];
 
         color = a_color;
@@ -74,7 +75,6 @@ AddResult ActorThread::AddOverlay(std::string a_context, std::string a_id, int a
 			logger::info("failed due to no slots available {}", slot);
 			return AddResult::Failed;
         }
-
 		NiOverride::ApplyOverlay(_actor, _female, ovl->area, slot, ovl->path, color, alpha, glow, gloss, ovl->bump);
         _contexts[a_context].insert(ovl->path);
     }
@@ -135,6 +135,9 @@ void ActorThread::Update()
 {
 
 	if (!_initialized && _actor->Is3DLoaded()) {
+		_initialized = true;
+		logger::info("initializing {}", _actor->GetFormID());
+
 		std::map<std::pair<OverlayArea, int>, std::string> ovlsBySlot;
 
 		for (auto& [id, data] : _active) {
@@ -173,7 +176,6 @@ void ActorThread::Update()
             }
         }
 
-		_initialized = true;
     }
 
     // LATER: set/check update time
