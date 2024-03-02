@@ -20,6 +20,9 @@ namespace OM
 	typedef void (*ApplyNodeOverridesFunc)(RE::StaticFunctionTag*, RE::TESObjectREFR*);
 	typedef void (*AddOverlaysFunc)(RE::StaticFunctionTag*, RE::TESObjectREFR*);
 
+	typedef bool (*HasOverlaysFunc)(RE::StaticFunctionTag*, RE::TESObjectREFR*);
+	typedef void (*RemoveOverlaysFunc)(RE::StaticFunctionTag*, RE::TESObjectREFR*);
+
 	class LegacyOverrideInterface : public OverrideInterface
 	{
 	public:
@@ -75,6 +78,12 @@ namespace OM
 
 					func_start = (char*)baseAddress + addresses[9];
 					instance._AddOverlays = (AddOverlaysFunc)func_start;
+
+					func_start = (char*)baseAddress + addresses[10];
+					instance._HasOverlays = (HasOverlaysFunc)func_start;
+
+					func_start = (char*)baseAddress + addresses[11];
+					instance._RemoveOverlays = (RemoveOverlaysFunc)func_start;
 				} else {
 					logger::error("failed to find SKEE base address");
 				}
@@ -137,6 +146,16 @@ namespace OM
 			return _ApplyNodeOverrides(&_base, a_actor);
 		}
 
+		inline bool HasOverlays(RE::TESObjectREFR* a_ref) override
+		{
+			return _HasOverlays(&_base, a_ref);
+		}
+
+		inline void RemoveOverlays(RE::TESObjectREFR* a_actor) override
+		{
+			return _RemoveOverlays(&_base, a_actor);
+		}
+
 		GetNodeOverrideIntFunc _GetNodeOverrideInt;
 		GetNodeOverrideFloatFunc _GetNodeOverrideFloat;
 		GetNodeOverrideStringFunc _GetNodeOverrideString;
@@ -151,6 +170,8 @@ namespace OM
 
 		ApplyNodeOverridesFunc _ApplyNodeOverrides;
 		AddOverlaysFunc _AddOverlays;
+		HasOverlaysFunc _HasOverlays;
+		RemoveOverlaysFunc _RemoveOverlays;
 
 		std::vector<int> _addresses97{
 			0xBE160,
@@ -162,7 +183,9 @@ namespace OM
 			0x99D80,
 			0x9A1D0,
 			0x99D30,
-			0x99760
+			0x99760,
+			0x99780,
+			0x997A0
 		};
 		std::vector<int> _addresses640{
 			0xCA230,
@@ -174,7 +197,9 @@ namespace OM
 			0xA5940,
 			0xA5CA0,
 			0xA5930,
-			0xA5350
+			0xA5350,
+			0xA20A0,
+			0xA53F0
 		};
 
 		RE::StaticFunctionTag _base;

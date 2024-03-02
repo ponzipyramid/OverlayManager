@@ -160,6 +160,16 @@ namespace OM
 			_overrideInterface->SetNodeProperties(a_actor, false);
 		}
 
+		inline bool HasOverlays(RE::TESObjectREFR* a_ref) override
+		{
+			return _overlayInterface->HasOverlays(a_ref);
+		}
+
+		inline void RemoveOverlays(RE::TESObjectREFR* a_ref) override
+		{
+			return _overlayInterface->RemoveOverlays(a_ref);
+		}
+
 	private:
 		SKEE::IOverrideInterface* _overrideInterface;
 		SKEE::IOverlayInterface* _overlayInterface;

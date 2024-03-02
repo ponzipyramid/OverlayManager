@@ -34,7 +34,8 @@ namespace OM {
         inline std::string GetSlotId(OverlayArea a_area, int a_slot) { return NiOverride::GetPath(_actor, _female, a_area, a_slot); }
 		inline bool IsSlotOpen(OverlayArea a_area, int a_slot);
         inline std::size_t GetNumActive() { return _active.size(); }
-		std::string Print();
+	    
+        std::string Print();
 	private:
         RE::Actor* _actor = nullptr;
         bool _female;

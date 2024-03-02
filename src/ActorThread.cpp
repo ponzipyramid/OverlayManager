@@ -151,6 +151,8 @@ void ActorThread::Update()
 			}
 		}
 
+		bool clearOvls = true;
+
         for (auto area : Areas) {
 			auto numSlots = NiOverride::GetNumOverlays(area);
 
@@ -165,16 +167,31 @@ void ActorThread::Update()
 
 					if (GetSlotId(area, slot) == id) {  // refresh overlay
 						NiOverride::ApplyOverlay(_actor, _female, area, slot, id, color, alpha, glow, gloss, Registry::GetOverlay(id)->bump);
+						logger::info("not clearing ovls due to {}", id);
+						clearOvls = false;
 					} else {
 						_active.erase(id);
 						_contexts[context].erase(id);
+						logger::info("not clearing ovls due to {}", id);
 						AddOverlay(context, id, color, alpha, glow, gloss);
+						clearOvls = false;
 					}
 				} else {
-					NiOverride::ClearOverlay(_actor, _female, area, slot);
+					auto path = GetSlotId(area, slot);
+					if (path.empty() || path.starts_with(ST_PATH) || path.starts_with(OM_PATH)) {
+						NiOverride::ClearOverlay(_actor, _female, area, slot);
+					} else {
+						logger::info("not clearing ovls due to {}", path);
+						clearOvls = false;
+					}
 				}
             }
         }
+
+		if (_actor->GetFormID() != 20 && clearOvls) {
+			logger::info("removing overlays on {}", _actor->GetFormID());
+			NiOverride::CheckAndRemoveOverlays(_actor);
+		}
 
     }
 

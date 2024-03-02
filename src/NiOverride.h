@@ -28,8 +28,15 @@ namespace OM {
 
         static inline void CheckAndAddOverlays(RE::Actor* a_target)
         {
-			_interface->AddOverlays(a_target);
+			if (!_interface->HasOverlays(a_target))
+				_interface->AddOverlays(a_target);
         }
+
+		static inline void CheckAndRemoveOverlays(RE::Actor* a_target) 
+		{
+			if (_interface->HasOverlays(a_target))
+				_interface->RemoveOverlays(a_target);
+		}
 
 		static inline bool HasOverrideInSlot(RE::Actor* a_target, bool a_female, OverlayArea a_area, int a_slot)
 		{

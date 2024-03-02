@@ -15,5 +15,7 @@ namespace OM
 		virtual void RemoveNodeOverride(RE::TESObjectREFR* a_ref, bool a_female, std::string a_node, int a_key, int a_index) = 0;
 		virtual void AddOverlays(RE::TESObjectREFR* a_ref) = 0;
 		virtual void ApplyNodeOverrides(RE::Actor* a_actor) = 0;
+		virtual bool HasOverlays(RE::TESObjectREFR* a_actor) = 0;
+		virtual void RemoveOverlays(RE::TESObjectREFR* a_actor) = 0;
 	};
 }
