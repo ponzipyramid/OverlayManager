@@ -4,6 +4,7 @@
 #include "Registry.h"
 #include "Hooks.h"
 #include "Serialize.h"
+#include "Config.h"
 
 #define DLLEXPORT __declspec(dllexport)
 
@@ -47,7 +48,7 @@ void InitializeMessaging()
 			});
 		} else if (message->type == SKSE::MessagingInterface::kDataLoaded) {
 			NiOverride::Init();
-			Registry::Read();		
+			Registry::Read();	
 		}
 	})) {
 		stl::report_and_fail("Unable to register message listener.");
@@ -81,6 +82,7 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_s
 	InitializePapyrus();
 
 	Hooks::Install();
+	Config::Init();
 
 	return true;
 }

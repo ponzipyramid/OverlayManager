@@ -6,9 +6,10 @@
 #include "Override/LegacyOverrideInterface.h"
 #include "Override/ModernOverrideInterface.h"
 
-#define SKEE_PATH "Data/SKSE/Plugins/skee64.ini"
 
 namespace OM {
+	constexpr std::string_view SKEE_CONFIG_PATH = "Data/SKSE/Plugins/skee64.ini";
+
     class NiOverride {
     public:
         static int GetNumOverlays(OverlayArea a_area) {
@@ -132,16 +133,14 @@ namespace OM {
 				_interface = ModernOverrideInterface::GetSingleton();
             }
 
-			CSimpleIniA config;
-			config.SetUnicode();
-
-			SI_Error rc = config.LoadFile(SKEE_PATH);
+			CSimpleIniA skeeConfig;
+			SI_Error rc = skeeConfig.LoadFile(SKEE_CONFIG_PATH.data());
 
 			if (rc >= 0) {
-				clib_util::ini::get_value(config, _numBodyOvls, "Overlays/Body", "iNumOverlays", "");
-				clib_util::ini::get_value(config, _numHandsOvls, "Overlays/Hands", "iNumOverlays", "");
-				clib_util::ini::get_value(config, _numFeetOvls, "Overlays/Feet", "iNumOverlays", "");
-				clib_util::ini::get_value(config, _numFaceOvls, "Overlays/Face", "iNumOverlays", "");
+				clib_util::ini::get_value(skeeConfig, _numBodyOvls, "Overlays/Body", "iNumOverlays", "");
+				clib_util::ini::get_value(skeeConfig, _numHandsOvls, "Overlays/Hands", "iNumOverlays", "");
+				clib_util::ini::get_value(skeeConfig, _numFeetOvls, "Overlays/Feet", "iNumOverlays", "");
+				clib_util::ini::get_value(skeeConfig, _numFaceOvls, "Overlays/Face", "iNumOverlays", "");
 			}
 
 			logger::info("# Overlay: {} {} {} {}", _numBodyOvls, _numHandsOvls, _numFeetOvls, _numFaceOvls);
@@ -151,12 +150,12 @@ namespace OM {
 		{
 			return std::format("{} [ovl{}]", magic_enum::enum_name(a_area), a_slot);
 		}
-
     private:
 		static inline OverrideInterface* _interface;
 		static inline int _numBodyOvls = 0;
 		static inline int _numFaceOvls = 0;
 		static inline int _numHandsOvls = 0;
 		static inline int _numFeetOvls = 0;
+		
     };
 }

@@ -3,6 +3,7 @@
 #include "JCApi.h"
 #include "Registry.h"
 #include "Serialization.hpp"
+#include "Config.h"
 
 using namespace OM;
 
@@ -14,7 +15,8 @@ void ActorManager::SyncContext(RE::Actor* a_target, std::string a_context, int a
     if (auto thread = GetActorThread(a_target)) {
 
         auto count = JArray::count(a_list);
-        
+		auto delay = Config::GetApplicationDelay();
+
         std::vector<int> arr;
         for (int i = 0; i < count; i++) {
 			arr.emplace_back(JArray::getObj(a_list, i));
@@ -55,7 +57,8 @@ void ActorManager::SyncContext(RE::Actor* a_target, std::string a_context, int a
 			}
 
 			if (i < (count - 1)) {
-				std::this_thread::sleep_for(200ms);
+				
+				std::this_thread::sleep_for(delay);
 			}
         }
 
