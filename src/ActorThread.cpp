@@ -117,6 +117,8 @@ bool ActorThread::RemoveOverlay(std::string a_context, std::string a_id)
 
 std::vector<int> ActorThread::GetExternalOverlaySlots(std::string a_context, OverlayArea a_area)
 {
+	logger::info("GetExternalOverlaySlots");
+
 	std::vector<int> slots;
 
     int numSlots = NiOverride::GetNumOverlays(a_area);
@@ -129,7 +131,9 @@ std::vector<int> ActorThread::GetExternalOverlaySlots(std::string a_context, Ove
         }
     }
 
-    return slots;
+	logger::info("GetExternalOverlaySlots {}", slots.size());
+	
+	return slots;
 }
 
 void ActorThread::Update() 
