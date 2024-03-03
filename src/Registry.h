@@ -15,10 +15,11 @@ namespace OM {
                 if (path.extension() != ".json") continue;
                 
                 logger::info("processing: {}", path.string());
-
-                std::ifstream f(entry.path());
-                json data = json::parse(f);
+               
 				try {
+					std::ifstream f(entry.path());
+					json data = json::parse(f);
+
 					auto tats = data.template get<std::vector<OverlayST>>();
 
 					_overlays.reserve(tats.size());

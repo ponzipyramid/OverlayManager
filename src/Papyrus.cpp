@@ -75,6 +75,11 @@ namespace {
 		else
 			return a_default;
 	}
+
+	void LogPapyrus(RE::StaticFunctionTag*, std::string a_msg)
+	{
+		logger::info("Papyrus: {}", a_msg);
+	}
 }
 
 bool Papyrus::RegisterFunctions(RE::BSScript::IVirtualMachine* vm) {
@@ -92,6 +97,8 @@ bool Papyrus::RegisterFunctions(RE::BSScript::IVirtualMachine* vm) {
 	vm->RegisterFunction("GetOverlayMetaNumeric", PapyrusClass, GetOverlayMetaNumeric);
 	vm->RegisterFunction("GetOverlayMetaForm", PapyrusClass, GetOverlayMetaForm);
 	vm->RegisterFunction("GetOverlayEvent", PapyrusClass, GetOverlayEvent);
+
+	vm->RegisterFunction("LogPapyrus", PapyrusClass, LogPapyrus);
 
     return true;
 }

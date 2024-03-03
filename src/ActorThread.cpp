@@ -124,6 +124,7 @@ std::vector<int> ActorThread::GetExternalOverlaySlots(std::string a_context, Ove
 		auto path = GetSlotId(a_area, i);
 
 		if (!IsSlotOpen(a_area, i) && !_contexts[a_context].contains(path) && _active[path].slot == i) {
+			logger::info("external slot: {} {}", NiOverride::GetNode(a_area, i), !IsSlotOpen(a_area, i), !_contexts[a_context].contains(path), _active[path].slot == i);
 			slots.emplace_back(i);
         }
     }
