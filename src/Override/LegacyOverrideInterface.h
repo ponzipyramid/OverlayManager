@@ -45,7 +45,9 @@ namespace OM
 					auto& addresses = instance._addresses640;
 					
 					const auto ver = REL::Module::get().version();
+					logger::info("current version: {} {} {}", ver.major(), ver.minor(), ver.patch());
 					if (ver.major() == 1 && ver.minor() == 5 && ver.patch() == 97) {
+						logger::info("switching to 1.5.97 ver");
 						addresses = instance._addresses97;
 					}
 
@@ -179,7 +181,7 @@ namespace OM
 			0xBE2F0,
 			0xBD9E0,
 			0xBD780,
-			0x9F040,
+			0xBDC30,
 			0x99D80,
 			0x9A1D0,
 			0x99D30,

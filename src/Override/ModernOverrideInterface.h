@@ -167,7 +167,7 @@ namespace OM
 
 		inline void RemoveOverlays(RE::TESObjectREFR* a_ref) override
 		{
-			return _overlayInterface->RemoveOverlays(a_ref);
+			_overlayInterface->RemoveOverlays(a_ref);
 		}
 
 	private:

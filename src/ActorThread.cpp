@@ -188,10 +188,10 @@ void ActorThread::Update()
             }
         }
 
-		if (_actor->GetFormID() != 20 && clearOvls) {
+		/*if (_actor->GetFormID() != 20 && clearOvls) {
 			logger::info("removing overlays on {}", _actor->GetFormID());
 			NiOverride::CheckAndRemoveOverlays(_actor);
-		}
+		}*/
 
     }
 
