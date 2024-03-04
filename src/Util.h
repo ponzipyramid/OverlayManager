@@ -7,7 +7,7 @@ using namespace OM::JC;
 
 namespace OM {
     namespace Util {
-		inline void Lowercase(std::string a_str) {
+		inline void Lowercase(std::string& a_str) {
 			std::transform(a_str.begin(), a_str.end(), a_str.begin(),
 				[](unsigned char c) { return (char) std::tolower(c); });
 		}
@@ -69,7 +69,6 @@ namespace OM {
 			auto section = JMap::getStr(a_ovl, "section");
 			auto name = JMap::getStr(a_ovl, "name");
 			auto fullName = std::format("{}/{}", section, name);
-
 		
 			if (a_applied) {
 				auto req = JMap::getStr(a_ovl, "requires");
@@ -95,7 +94,6 @@ namespace OM {
 				}
 
 				if (!reqsMet || conflict) {
-					logger::info("excluding {} due to {} {}", fullName, reqsMet, conflict);
 					return false;
 				}
 			}
@@ -104,8 +102,6 @@ namespace OM {
 
 			for (int i = JMap::count(a_template) - 1; i >= 0; i--) {
 				std::string tkey = JArray::getStr(tkeys, i);
-
-				logger::info("testing {}", tkey);
 
 				if (a_runtime || (tkey != "color" && tkey != "glow" && tkey != "gloss")) {
 					auto sval1 = JMap::getStr(a_template, tkey);
@@ -121,10 +117,7 @@ namespace OM {
 						auto sval2 = JMap::getStr(a_ovl, tkey);
 						Lowercase(sval2);
 
-						logger::info("{} = {}, {} = {}, {} = {}", ival1, ival2, fval1, fval2, sval1, sval2);
-
 						if ((ival1 != ival2) || (fval1 != fval2) || (!WildcardMatch(sval1, sval2))) {
-							logger::info("excluding {} due to {}", fullName, tkey);
 							return false;
 						}
 					}

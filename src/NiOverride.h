@@ -5,7 +5,7 @@
 #include "Override/OverrideInterface.h"
 #include "Override/LegacyOverrideInterface.h"
 #include "Override/ModernOverrideInterface.h"
-
+#include "Util.h"
 
 namespace OM {
 	constexpr std::string_view SKEE_CONFIG_PATH = "Data/SKSE/Plugins/skee64.ini";
@@ -43,13 +43,15 @@ namespace OM {
 		{
 				auto node = GetNode(a_area, a_slot);
 
-                if (_interface->HasNodeOverride(a_target, a_female, node, 9, 0)) {
-					return true;
+                if (!_interface->HasNodeOverride(a_target, a_female, node, 9, 0)) {
+					return false;
                 }
 
                 auto path = _interface->GetNodeOverrideString(a_target, a_female, node, 9, 0);
+				Util::Lowercase(path);
 
-				return path != "" && path != BLANK_PATH;
+				logger::info("HasOverrideInSlot ({}): {}, '{}' = '{}' -> {}", GetNode(a_area, a_slot), path.empty(), path, BLANK_PATH, !path.empty() && path != BLANK_PATH);
+				return !path.empty() && path != BLANK_PATH;
 		}
 
         static inline std::string GetPath(RE::Actor* a_target, bool a_female, OverlayArea a_area, int a_slot) {        

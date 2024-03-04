@@ -60,11 +60,11 @@ namespace OM {
             }
         };
         
-        static inline Overlay* GetOverlay(std::string_view a_id) { return _overlaysById[a_id]; }
+        static inline Overlay* GetOverlay(std::string a_id) { return _overlaysById[a_id]; }
 		static inline std::vector<Overlay*> GetOverlaysByContext(std::string a_context) { return _overlaysByContext[a_context]; }
     private:
 		static inline std::vector<Overlay> _overlays;
 		static inline std::unordered_map<std::string, std::vector<Overlay*>> _overlaysByContext;
-        static inline std::unordered_map<std::string_view, Overlay*> _overlaysById;
+		static inline std::unordered_map<std::string, Overlay*> _overlaysById;
     };
 }

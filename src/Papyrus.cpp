@@ -21,6 +21,7 @@ namespace {
    
     std::vector<int> GetExternalOverlaySlots(RE::StaticFunctionTag*, RE::Actor* a_target, std::string a_context, std::string a_area)
 	{
+		Util::Lowercase(a_context);
 		return ActorManager::GetActorThread(a_target)->GetExternalOverlaySlots(a_context, Util::GetArea(a_area));
     }
 
@@ -98,7 +99,7 @@ bool Papyrus::RegisterFunctions(RE::BSScript::IVirtualMachine* vm) {
 	vm->RegisterFunction("GetOverlayMetaForm", PapyrusClass, GetOverlayMetaForm);
 	vm->RegisterFunction("GetOverlayEvent", PapyrusClass, GetOverlayEvent);
 
-	vm->RegisterFunction("LogPapyrus", PapyrusClass, LogPapyrus);
+	vm->RegisterFunction("LogPapyrusInternal", PapyrusClass, LogPapyrus);
 
     return true;
 }

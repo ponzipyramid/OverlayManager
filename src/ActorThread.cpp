@@ -117,21 +117,17 @@ bool ActorThread::RemoveOverlay(std::string a_context, std::string a_id)
 
 std::vector<int> ActorThread::GetExternalOverlaySlots(std::string a_context, OverlayArea a_area)
 {
-	logger::info("GetExternalOverlaySlots");
-
 	std::vector<int> slots;
 
     int numSlots = NiOverride::GetNumOverlays(a_area);
     for (int i = 0; i < numSlots; i++) {
 		auto path = GetSlotId(a_area, i);
 
-		if (!IsSlotOpen(a_area, i) && !_contexts[a_context].contains(path) && _active[path].slot == i) {
-			logger::info("external slot: {} {}", NiOverride::GetNode(a_area, i), !IsSlotOpen(a_area, i), !_contexts[a_context].contains(path), _active[path].slot == i);
+		if (!IsSlotOpen(a_area, i) && !_contexts[a_context].contains(path)) {
+			logger::info("{} is an external slot for {} due to {} {}", NiOverride::GetNode(a_area, i), a_context, path, BLANK_PATH);
 			slots.emplace_back(i);
-        }
+		}
     }
-
-	logger::info("GetExternalOverlaySlots {}", slots.size());
 	
 	return slots;
 }
@@ -224,6 +220,7 @@ ActorThread::ActorThread(SKSE::SerializationInterface* a_intfc)
         }
 		
         count = Serialization::Read<std::size_t>(a_intfc);
+
 		_contexts.reserve(count);
 		for (; count > 0; count--) {			
 			auto context = Serialization::Read<std::string>(a_intfc);
@@ -235,6 +232,8 @@ ActorThread::ActorThread(SKSE::SerializationInterface* a_intfc)
 
 				if (_active.contains(id))
 					_contexts[context].insert(id);
+				else
+					logger::info("failed to add ovl {} to {} - not active", id, context);
 			}
         }
     }

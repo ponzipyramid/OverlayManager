@@ -48,28 +48,36 @@ namespace OM::JC {
             }
 
             auto refl = root->query_interface<jc::reflection_interface>();
+			logger::info("received reflection interface");
 
             obtain_func(refl, "getObj", "JFormDB", JFormDB_getObj);
+			logger::info("received JFormDB funcs");
+			
+            obtain_func(refl, "getStr", "JMap", JMap_getStr);
+			obtain_func(refl, "getInt", "JMap", JMap_getInt);
+			obtain_func(refl, "getFlt", "JMap", JMap_getFlt);
+			obtain_func(refl, "setFlt", "JMap", JMap_setFlt);
+			obtain_func(refl, "setInt", "JMap", JMap_setInt);
+			obtain_func(refl, "setStr", "JMap", JMap_setStr);
+			obtain_func(refl, "object", "JMap", JMap_object);
+			obtain_func(refl, "count", "JMap", JMap_count);
+			obtain_func(refl, "allKeys", "JMap", JMap_allKeys);
+			obtain_func(refl, "hasKey", "JMap", JMap_hasKey);
+			logger::info("received JMap funcs");
+
             obtain_func(refl, "count", "JArray", JArray_count);
 			obtain_func(refl, "getObj", "JArray", JArray_getObj);
 			obtain_func(refl, "getStr", "JArray", JArray_getStr);
-            obtain_func(refl, "getStr", "JMap", JMap_getStr);
-            obtain_func(refl, "getInt", "JMap", JMap_getInt);
-			obtain_func(refl, "getFlt", "JMap", JMap_getFlt);
 			obtain_func(refl, "clear", "JArray", JArray_clear);
-			obtain_func(refl, "object", "JMap", JMap_object);
 			obtain_func(refl, "addObj", "JArray", JArray_addObj);
 			obtain_func(refl, "eraseIndex", "JArray", JArray_eraseIndex);
-			
-            obtain_func(refl, "setFlt", "JMap", JMap_setFlt);
-			obtain_func(refl, "SetInt", "JMap", JMap_setInt);
-			obtain_func(refl, "setStr", "JMap", JMap_setStr);
-			
-            obtain_func(refl, "count", "JMap", JMap_count);
-			obtain_func(refl, "allKeys", "JMap", JMap_allKeys);
-			obtain_func(refl, "hasKey", "JMap", JMap_hasKey);
+			logger::info("received JArray funcs");
 
-            default_domain = root->query_interface<jc::domain_interface>()->get_default_domain();
+            auto dom = root->query_interface<jc::domain_interface>();
+			logger::info("received domain interface");
+
+			default_domain = dom->get_default_domain();
+			logger::info("received default domain {}", default_domain);
 
             _initialised = true;
 
