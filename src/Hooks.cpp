@@ -18,7 +18,7 @@ void Hooks::UpdatePlayer(RE::Actor* a_actor, float a_delta)
 {
 	_UpdatePlayer(a_actor, a_delta);
 	if (auto thread = ActorManager::GetActorThread(a_actor))
-		thread->Update();
+		thread->Update(a_actor);
 }
 
 void Hooks::UpdateCharacter(RE::Actor* a_actor, float a_delta)
@@ -26,5 +26,5 @@ void Hooks::UpdateCharacter(RE::Actor* a_actor, float a_delta)
 	_UpdateCharacter(a_actor, a_delta);
 
 	if (auto thread = ActorManager::GetActorThread(a_actor))
-		thread->Update();
+		thread->Update(a_actor);
 }

@@ -132,8 +132,10 @@ std::vector<int> ActorThread::GetExternalOverlaySlots(std::string a_context, Ove
 	return slots;
 }
 
-void ActorThread::Update() 
+void ActorThread::Update(RE::Actor* a_actor) 
 {
+	_actor = a_actor;
+	_female = _actor->GetActorBase()->GetSex() == 1;
 
 	if (!_initialized && _actor->Is3DLoaded()) {
 		_initialized = true;

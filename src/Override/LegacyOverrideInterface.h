@@ -45,15 +45,21 @@ namespace OM
 					auto& addresses = instance._addresses640;
 					
 					const auto ver = REL::Module::get().version();
+
 					logger::info("current version: {} {} {}", ver.major(), ver.minor(), ver.patch());
-					if (ver.major() == 1 && ver.minor() == 5 && ver.patch() == 97) {
+					
+					if (ver.major() == 1 && ver.minor() == 6 && ver.patch() == 640) {
+						logger::info("switching to 1.6.640 ver");
+					} else if (ver.major() == 1 && ver.minor() == 5 && ver.patch() == 97) {
 						logger::info("switching to 1.5.97 ver");
 						addresses = instance._addresses97;
-					}
-					if (ver.major() == 1 && ver.minor() == 6 && ver.patch() == 659) {
-						logger::info("switching to 1.5.659 ver");
+					} else if (ver.major() == 1 && ver.minor() == 6 && ver.patch() == 659) {
+						logger::info("switching to 1.6.659 ver");
 						addresses = instance._addresses659;
-					}
+					} else {
+						logger::error("version unsupported");
+					} 
+
 
 					func_start = (char*)baseAddress + addresses[0];
 					instance._GetNodeOverrideInt = (GetNodeOverrideIntFunc)func_start;
@@ -104,92 +110,92 @@ namespace OM
 
 		inline int GetNodeOverrideInt(RE::TESObjectREFR* a_ref, bool a_female, std::string a_node, int a_key, int a_index) override
 		{
-			// logger::info("Start");
+			logger::info("Start");
 			auto ret =  _GetNodeOverrideInt(&_base, a_ref, a_female, a_node, a_key, a_index);
-			// logger::info("Stop");
+			logger::info("Stop");
 
 			return ret;
 		}
 
 		inline float GetNodeOverrideFloat(RE::TESObjectREFR* a_ref, bool a_female, std::string a_node, int a_key, int a_index) override
 		{
-			// logger::info("Start");
+			logger::info("Start");
 			auto ret = _GetNodeOverrideFloat(&_base, a_ref, a_female, a_node, a_key, a_index);
-			// logger::info("Stop");
+			logger::info("Stop");
 			return ret;
 		}
 
 		inline std::string GetNodeOverrideString(RE::TESObjectREFR* a_ref, bool a_female, std::string a_node, int a_key, int a_index) override
 		{
-			// logger::info("Start");
+			logger::info("Start");
 			auto ret = std::string{ _GetNodeOverrideString(&_base, a_ref, a_female, a_node, a_key, a_index).c_str() };
-			// logger::info("Stop");
+			logger::info("Stop");
 			return ret;
 		}
 
 		inline void AddNodeOverrideInt(RE::TESObjectREFR* a_ref, bool a_female, std::string a_node, int a_key, int a_index, int a_value, bool a_persist) override
 		{
-			// logger::info("Start");
+			logger::info("Start");
 			_AddNodeOverrideInt(&_base, a_ref, a_female, a_node, a_key, a_index, a_value, a_persist);
-			// logger::info("Stop");
+			logger::info("Stop");
 		}
 
 		inline void AddNodeOverrideFloat(RE::TESObjectREFR* a_ref, bool a_female, std::string a_node, int a_key, int a_index, float a_value, bool a_persist) override
 		{
-			// logger::info("Start");
+			logger::info("Start");
 			_AddNodeOverrideFloat(&_base, a_ref, a_female, a_node, a_key, a_index, a_value, a_persist);
-			// logger::info("Stop");
+			logger::info("Stop");
 		}
 
 		inline void AddNodeOverrideString(RE::TESObjectREFR* a_ref, bool a_female, std::string a_node, int a_key, int a_index, std::string a_value, bool a_persist) override
 		{
-			// logger::info("Start");
+			logger::info("Start");
 			_AddNodeOverrideString(&_base, a_ref, a_female, a_node, a_key, a_index, a_value.c_str(), a_persist);
-			// logger::info("Stop");
+			logger::info("Stop");
 		}
 
 		inline bool HasNodeOverride(RE::TESObjectREFR* a_ref, bool a_female, std::string a_node, int a_key, int a_index) override
 		{
-			// logger::info("Start");
+			logger::info("Start");
 			auto ret = _HasNodeOverride(&_base, a_ref, a_female, a_node, a_key, a_index);
-			// logger::info("Stop");
+			logger::info("Stop");
 			return ret;
 		}
 
 		inline void RemoveNodeOverride(RE::TESObjectREFR* a_ref, bool a_female, std::string a_node, int a_key, int a_index) override
 		{
-			// logger::info("Start");
+			logger::info("Start");
 			_RemoveNodeOverride(&_base, a_ref, a_female, a_node, a_key, a_index);
-			// logger::info("Stop");
+			logger::info("Stop");
 		}
 
 		inline void AddOverlays(RE::TESObjectREFR* a_ref) override
 		{
-			// logger::info("Start");
+			logger::info("Start");
 			_AddOverlays(&_base, a_ref);
-			// logger::info("Stop");
+			logger::info("Stop");
 		}
 
 		inline void ApplyNodeOverrides(RE::Actor* a_actor) override
 		{
-			// logger::info("Start");
+			logger::info("Start");
 			_ApplyNodeOverrides(&_base, a_actor);
-			// logger::info("Stop");
+			logger::info("Stop");
 		}
 
 		inline bool HasOverlays(RE::TESObjectREFR* a_ref) override
 		{
-			// logger::info("Start");
+			logger::info("Start");
 			auto ret = _HasOverlays(&_base, a_ref);
-			// logger::info("Stop");
+			logger::info("Stop");
 			return ret;
 		}
 
 		inline void RemoveOverlays(RE::TESObjectREFR* a_actor) override
 		{
-			// logger::info("Start");
+			logger::info("Start");
 			_RemoveOverlays(&_base, a_actor);
-			// logger::info("Stop");
+			logger::info("Stop");
 		}
 
 		GetNodeOverrideIntFunc _GetNodeOverrideInt;
@@ -235,7 +241,7 @@ namespace OM
 			0xA5CA0,
 			0xA5930,
 			0xA5350,
-			0xA20A0,
+			0xA53D0,
 			0xA53F0
 		};
 

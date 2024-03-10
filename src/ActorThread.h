@@ -26,7 +26,7 @@ namespace OM {
         inline OverlayData* GetOverlayData(std::string a_id) { return _active.count(a_id) ? &_active[a_id] : nullptr; }
 		std::vector<int> GetExternalOverlaySlots(std::string a_context, OverlayArea a_area);
 		int GetAvailableSlot(OverlayArea a_area, int a_applied = 0);
-		void Update();
+		void Update(RE::Actor* a_actor);
 		inline bool HasActiveOverlays() { return !_active.empty(); }
 		void Serialize(SKSE::SerializationInterface* a_intfc);
 		bool IsValid();

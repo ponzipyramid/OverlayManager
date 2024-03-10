@@ -40,7 +40,21 @@ void InitializeMessaging()
 
 	if (!SKSE::GetMessagingInterface()->RegisterListener([](SKSE::MessagingInterface::Message* message) {
 		if (message->type == SKSE::MessagingInterface::kPostLoad) {
-			SKSE::GetMessagingInterface()->RegisterListener(JC_PLUGIN_NAME, [](SKSE::MessagingInterface::Message* a_msg) {
+			auto patch = REL::Module::get().version().patch();
+
+			logger::info("Patch: {}, VR: {}", patch, REL::Module::IsVR());
+
+			std::string pluginName{ "JContainers64" };
+
+			if (REL::Module::IsVR()) {
+				pluginName = "JContainersVR";
+			} else if (patch >= 659) {
+				pluginName = "JContainersGOG";
+			}
+
+			logger::info("JContainers Plugin Name: {}", pluginName);
+
+			SKSE::GetMessagingInterface()->RegisterListener(pluginName.c_str(), [](SKSE::MessagingInterface::Message* a_msg) {
 				if (a_msg && a_msg->type == jc::message_root_interface) {
 					if (const jc::root_interface* root = jc::root_interface::from_void(a_msg->data))
 						JC::Api::Init(root);
