@@ -48,7 +48,7 @@ void InitializeMessaging()
 
 			if (REL::Module::IsVR()) {
 				pluginName = "JContainersVR";
-			} else if (patch >= 659) {
+			} else if (patch == 659) {
 				pluginName = "JContainersGOG";
 			}
 
@@ -62,7 +62,7 @@ void InitializeMessaging()
 			});
 		} else if (message->type == SKSE::MessagingInterface::kDataLoaded) {
 			NiOverride::Init();
-			Registry::Read();	
+			Registry::Read();
 		}
 	})) {
 		stl::report_and_fail("Unable to register message listener.");
