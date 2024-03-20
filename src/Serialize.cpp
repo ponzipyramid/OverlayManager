@@ -23,7 +23,8 @@ void Serialize::Load(SKSE::SerializationInterface* a_intfc)
 	uint32_t length;
 	while (a_intfc->GetNextRecordInfo(type, version, length)) {
 		if (type == RecordName) {
-			ActorManager::Load(a_intfc);
+			if (length > 0)
+				ActorManager::Load(a_intfc);
 			break;
 		}
 	}

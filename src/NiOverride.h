@@ -39,6 +39,11 @@ namespace OM {
 				_interface->RemoveOverlays(a_target);
 		}
 
+		static inline bool HasOverlays(RE::Actor* a_target)
+		{
+			return _interface->HasOverlays(a_target);
+		}
+
 		static inline bool HasOverrideInSlot(RE::Actor* a_target, bool a_female, OverlayArea a_area, int a_slot)
 		{
 				auto node = GetNode(a_area, a_slot);

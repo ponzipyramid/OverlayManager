@@ -139,6 +139,10 @@ void ActorThread::Update(RE::Actor* a_actor)
 
 	if (!_initialized && _actor->Is3DLoaded()) {
 		_initialized = true;
+
+		if (!NiOverride::HasOverlays(_actor))
+			return;
+
 		logger::info("initializing {}", _actor->GetFormID());
 
 		std::map<std::pair<OverlayArea, int>, std::string> ovlsBySlot;
